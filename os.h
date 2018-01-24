@@ -74,7 +74,7 @@ struct thread {
 
 // system_t struct (an array of threads)
 struct system_t {
-   thread[] threads;
+   struct thread threads[3];
 };
 
 #endif
