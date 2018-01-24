@@ -64,4 +64,17 @@ struct regs_interrupt {
    uint8_t pcl;
 };
 
+// thread_t struct
+
+struct thread {
+   uint8_t id;
+   uint16_t sBase;
+   uint16_t sp;
+};
+
+// system_t struct (an array of threads)
+struct system_t {
+   thread[] threads;
+};
+
 #endif
