@@ -32,7 +32,35 @@ void start_system_timer() {
    OCR0A = 156;             //generate interrupt every 9.98 milliseconds
 }
 
-__attribute__((naked)) void context_switch(uint16_t* new_tp, uint16_t* old_tp) {
+__attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
+   asm volatile ("push r2");
+   asm volatile ("push r3");
+   asm volatile ("push r4");
+   asm volatile ("push r5");
+   asm volatile ("push r6");
+   asm volatile ("push r7");
+   asm volatile ("push r8");
+   asm volatile ("push r9");
+   asm volatile ("push r10");
+   asm volatile ("push r11");
+   asm volatile ("push r12");
+   asm volatile ("push r13");
+   asm volatile ("push r14");
+   asm volatile ("push r15");
+   asm volatile ("push r16");
+   asm volatile ("push r17");
+   // Take SP from CPU, put into SP for T1 (CPU SP located at 0x5E (high byte) and Ox5D(low byte))
+   thread *oldThread = (thread *)old_tp;
+   uint8_t highestOT = (intptr_t)oldThread >> 8;
+   uint8_t lowestOT = (intptr_t)oldThread & 0x00FF;
+
+   thread *newThread = (thread *)new_tp;
+   uint8_t highestNT = (intptr_t)newThread >> 8;
+   uint8_t lowestNT = (intptr_t)newThread & 0x00FF;
+
+   // asm volatile("LDS ")
+   // Take SP from T2, put into SP from CPU
+   // Pop registers r2 through r17
 }
 
 __attribute__((naked)) void thread_start(void) {

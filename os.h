@@ -66,15 +66,15 @@ struct regs_interrupt {
 
 // thread_t struct
 
-struct thread {
+typedef struct {
    uint8_t id;
    uint16_t sBase;
    uint16_t sp;
-};
+}thread;
 
 // system_t struct (an array of threads)
 struct system_t {
-   struct thread threads[3];
+   thread threads[3];
 };
 
 #endif
