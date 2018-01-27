@@ -17,6 +17,7 @@ ISR(TIMER0_COMPA_vect) {
    //Insert your code here
    //Call get_next_thread to get the thread id of the next thread to run
    //Call context switch here to switch to that next thread
+   // context_switch();
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
    //and r0 before exiting the ISR
@@ -54,7 +55,7 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    // Take SP from T2, put into SP from CPU
 
    // Saving temp regs
-   // asm volatile("MOVW r17:r16,r25:r24");
+   asm volatile("MOVW r17:r16,r25:r24");
 
    //1
    asm volatile("LDS r25, 0x5E");
