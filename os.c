@@ -49,18 +49,43 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    asm volatile ("push r15");
    asm volatile ("push r16");
    asm volatile ("push r17");
+
    // Take SP from CPU, put into SP for T1 (CPU SP located at 0x5E (high byte) and Ox5D(low byte))
-   thread *oldThread = (thread *)old_tp;
-   uint8_t highestOT = (intptr_t)oldThread >> 8;
-   uint8_t lowestOT = (intptr_t)oldThread & 0x00FF;
-
-   thread *newThread = (thread *)new_tp;
-   uint8_t highestNT = (intptr_t)newThread >> 8;
-   uint8_t lowestNT = (intptr_t)newThread & 0x00FF;
-
-   // asm volatile("LDS ")
    // Take SP from T2, put into SP from CPU
+
+   // Saving temp regs
+   asm volatile("MOVW r17:r16,r25:r24");
+
+   //1
+   asm volatile("LDS r25, 0x5E");
+   asm volatile("LDS r24, 0x5D");
+
+   //2
+   asm volatile("LDS r15, 0x5E");
+   asm volatile("LDS r14, 0x5D");
+   // asm volatile("MOVW r23:r22, r15:r14");
+
+   //3
+   // asm volatile("MOVW r25:24, r23:r22");
+
    // Pop registers r2 through r17
+   asm volatile ("pop r17");
+   asm volatile ("pop r16");
+   asm volatile ("pop r15");
+   asm volatile ("pop r14");
+   asm volatile ("pop r13");
+   asm volatile ("pop r12");
+   asm volatile ("pop r11");
+   asm volatile ("pop r10");
+   asm volatile ("pop r9");
+   asm volatile ("pop r8");
+   asm volatile ("pop r7");
+   asm volatile ("pop r6");
+   asm volatile ("pop r5");
+   asm volatile ("pop r4");
+   asm volatile ("pop r3");
+   asm volatile ("pop r2");
+   asm volatile("ret");
 }
 
 __attribute__((naked)) void thread_start(void) {

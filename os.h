@@ -1,6 +1,8 @@
 #ifndef OS_H
 #define OS_H
 
+// #include <sys/time.h>
+
 //This structure defines the register order pushed to the stack on a
 //system context switch.
 struct regs_context_switch {
@@ -78,7 +80,7 @@ typedef struct {
 struct system_t {
    thread_t threads[9];
    uint8_t curThread;
-   time_t sysTime;
+   unsigned long int sysTime;
 };
 
 #endif
