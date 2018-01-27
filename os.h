@@ -70,11 +70,15 @@ typedef struct {
    uint8_t id;
    uint16_t sBase;
    uint16_t sp;
-}thread;
+   char *tName;
+   uint16_t sSize;
+}thread_t;
 
 // system_t struct (an array of threads)
 struct system_t {
-   thread threads[3];
+   thread_t threads[9];
+   uint8_t curThread;
+   time_t sysTime;
 };
 
 #endif
