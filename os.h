@@ -70,10 +70,13 @@ struct regs_interrupt {
 
 typedef struct {
    uint8_t id;
-   uint16_t sBase;
-   uint16_t sp;
    char *tName;
+   uint16_t pc;
+   uint16_t usedBytes;
    uint16_t sSize;
+   uint16_t sp;
+   uint16_t sBase;
+   uint16_t sEnd;
 }thread_t;
 
 // system_t struct (an array of threads)
