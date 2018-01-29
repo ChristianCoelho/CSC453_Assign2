@@ -69,22 +69,22 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    asm volatile("MOVW 24, r22");
 
    // Pop registers r2 through r17
-   asm volatile ("pop r17");
-   asm volatile ("pop r16");
-   asm volatile ("pop r15");
-   asm volatile ("pop r14");
-   asm volatile ("pop r13");
-   asm volatile ("pop r12");
-   asm volatile ("pop r11");
-   asm volatile ("pop r10");
-   asm volatile ("pop r9");
-   asm volatile ("pop r8");
-   asm volatile ("pop r7");
-   asm volatile ("pop r6");
-   asm volatile ("pop r5");
-   asm volatile ("pop r4");
-   asm volatile ("pop r3");
-   asm volatile ("pop r2");
+   asm volatile("pop r17");
+   asm volatile("pop r16");
+   asm volatile("pop r15");
+   asm volatile("pop r14");
+   asm volatile("pop r13");
+   asm volatile("pop r12");
+   asm volatile("pop r11");
+   asm volatile("pop r10");
+   asm volatile("pop r9");
+   asm volatile("pop r8");
+   asm volatile("pop r7");
+   asm volatile("pop r6");
+   asm volatile("pop r5");
+   asm volatile("pop r4");
+   asm volatile("pop r3");
+   asm volatile("pop r2");
    asm volatile("ret");
 }
 
@@ -98,6 +98,7 @@ void os_init() {
 
 // Call once for each thread you want to create
 void create_thread(char* name, uint16_t address, void* args, uint16_t stack_size) {
+
 }
 
 // start running the OS
