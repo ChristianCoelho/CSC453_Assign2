@@ -55,7 +55,7 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    // Take SP from T2, put into SP from CPU
 
    // Saving temp regs
-   asm volatile("MOVW r17:r16,r25:r24");
+   asm volatile("MOVW r16,r24");
 
    //1
    asm volatile("LDS r25, 0x5E");
@@ -66,7 +66,7 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    asm volatile("STS 0x5D, r22");
 
    //3
-   // asm volatile("MOVW r25:24, r23:r22");
+   asm volatile("MOVW 24, r22");
 
    // Pop registers r2 through r17
    asm volatile ("pop r17");
@@ -90,5 +90,21 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
 
 __attribute__((naked)) void thread_start(void) {
    sei(); //enable interrupts - leave as the first statement in thread_start()
+}
+
+// any OS specific init code
+void os_init() {
+}
+
+// Call once for each thread you want to create
+void create_thread(char* name, uint16_t address, void* args, uint16_t stack_size) {
+}
+
+// start running the OS
+void os_start() {
+}
+
+// return id of next thread to run
+uint8_t get_next_thread() {
 }
 

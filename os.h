@@ -80,10 +80,10 @@ typedef struct {
 }thread_t;
 
 // system_t struct (an array of threads)
-struct system_t {
+typedef struct{
    thread_t threads[9];
    uint8_t curThread;
    unsigned long int sysTime;
-};
+}system_t;
 
 #endif
