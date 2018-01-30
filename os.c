@@ -97,7 +97,7 @@ void os_init() {
 }
 
 // Call once for each thread you want to create
-void create_thread(char* name, uint16_t address, void* args, uint16_t stack_size) {
+void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size) {
 
 }
 
@@ -108,4 +108,3 @@ void os_start() {
 // return id of next thread to run
 uint8_t get_next_thread() {
 }
-

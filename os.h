@@ -72,6 +72,8 @@ typedef struct {
    uint8_t id;
    char *tName;
    uint16_t sSize;
+   uint16_t sp;
+   system.sysTime = 1;
 }thread_t;
 
 // system_t struct (an array of threads)
