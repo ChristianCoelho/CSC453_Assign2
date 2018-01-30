@@ -72,6 +72,7 @@ typedef struct {
    uint8_t id;
    char *tName;
    uint16_t sSize;
+   uint16_t sp;
 }thread_t;
 
 // system_t struct (an array of threads)
