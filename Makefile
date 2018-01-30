@@ -10,7 +10,7 @@ DEVICE = /dev/tty.usbmodem1451
 
 #default target to compile the code
 main: main.c os.c 
-	avr-gcc -mmcu=atmega2560 -DF_CPU=16000000 -O2 -o main.elf main.c os.c
+	avr-gcc -mmcu=atmega2560 -DF_CPU=16000000 -O2 -o main.elf main.c serial.c os.c
 	avr-objcopy -O ihex main.elf main.hex
 	avr-size main.elf
 

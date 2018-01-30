@@ -55,30 +55,42 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    // Take SP from T2, put into SP from CPU
 
    // Saving temp regs
-   //From Lab1
-   //asm volatile("LDI r30, 0x24");
-   //asm volatile("LDI r31, 0x00");
-   //asm volatile("LD r18, Z");
-   //asm volatile("ori r18, 128");
-   //asm volatile("st Z, r18");
+ 
 
-   asm volatile("MOVW r30, r22"); //Z points to OT r23-r22
-   asm volatile("LD r16, Z"); //r16 holds value pointed to by OT r23-r22
-
-   asm volatile("MOVW r30, r24"); //Z points to NT r25-r24
-   asm volatile("LD r17,Z"); //r17 holds value pointed to by NT
-
-   asm volatile("LDI r31,0x5E");// Z points to CPU
+   asm volatile("LDI r31,0x00");// Z points to CPU
    asm volatile("LDI r30,0x5D");
-   asm volatile("LD r18, Z"); //r18 holds original CPU
+   asm volatile("LD r18, Z"); //r18 holds original CPU Lower
 
-   asm volatile("st Z, r16"); //Puts OT value into CPU
+   asm volatile("LDI r31,0x00");// Z points to CPU
+   asm volatile("LDI r30,0x5E");
+   asm volatile("LD r19, Z"); //r19 holds original CPU Higher
+   
+   asm volatile("MOVW r30, r22"); // END of 1
 
-   asm volatile("MOVW r30, r22");
-   asm volatile("st Z, r17"); //Puts NT value into OT
+   asm volatile("ST Z+, r18");
+   asm volatile("ST Z, r19");
 
-   asm volatile("MOVW r30, r24");
-   asm volatile("st Z, r18");
+
+   asm volatile("MOV r30, r24");
+   asm volatile("LDI r31, 0x00");
+   asm volatile("LD r20, Z"); //r20 holds NT lower
+
+   asm volatile("MOV r30, r25");
+   asm volatile("LDI r31, 0x00");
+   asm volatile("LD r21, Z");
+
+   asm volatile("LDI r31,0x00");// Z points to CPU Lower
+   asm volatile("LDI r30,0x5D");
+
+   asm volatile("ST Z+, r20");
+   asm volatile("ST Z, r21");
+
+   
+   //asm volatile("MOVW r30, r22"); //Z points to OT r23-r22
+   //asm volatile("LD r16, Z"); //r16 holds value pointed to by OT r23-r22
+
+
+  
 
    // Pop registers r2 through r17
    asm volatile("pop r17");

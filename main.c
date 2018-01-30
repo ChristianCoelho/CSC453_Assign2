@@ -7,42 +7,16 @@
 #include <stdlib.h>
 #include <util/delay.h>
 #include "os.h"
-
-led_on(void)
-{
- asm volatile("LDI r30, 0x24");
- asm volatile("LDI r31, 0x00");
- asm volatile("LD r18, Z");
- asm volatile("ori r18, 128");
- asm volatile("st Z, r18");
-
- asm volatile("LDI r30, 0x25");
- asm volatile("LDI r31, 0x00");
- asm volatile("LD r18, Z");
- asm volatile("ori r18, 128");
- asm volatile("st Z, r18");
-}
-led_off(void)
-{
-  asm volatile("LDI r30, 0x24");
- asm volatile("LDI r31, 0x00");
- asm volatile("LD r18, Z");
- asm volatile("ori r18, 128");
- asm volatile("st Z, r18");
-
- asm volatile("LDI r30, 0x25");
- asm volatile("LDI r31, 0x00");
- asm volatile("LD r18, Z");
- asm volatile("andi r18, 127");
- asm volatile("st Z, r18");
-}
-
+#include <string.h>
 
 int main(int argc, char *argv[]) {
    system_t system;
    int i = 0;
+   uint16_t test = 1;
+   serial_init();
 while(1)
 {
+	test = test * 2;
    for(i = 0; i < 10; i++)
 	   {
 	       _delay_ms(10);
@@ -58,6 +32,8 @@ while(1)
        led_off();
 
    context_switch(&(system.threads[0].sp), &(system.threads[0].sp));
+   print_hex(test);
+
  }
    return 0;
 }
