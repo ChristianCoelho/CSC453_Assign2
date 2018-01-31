@@ -59,31 +59,29 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
 
    asm volatile("LDI r31,0x00");// Z points to CPU
    asm volatile("LDI r30,0x5D");
-   asm volatile("LD r18, Z"); //r18 holds original CPU Lower
+   asm volatile("LD r10, Z"); //r18 holds original CPU Lower
 
    asm volatile("LDI r31,0x00");// Z points to CPU
    asm volatile("LDI r30,0x5E");
-   asm volatile("LD r19, Z"); //r19 holds original CPU Higher
+   asm volatile("LD r11, Z"); //r19 holds original CPU Higher
    
    asm volatile("MOVW r30, r22"); // END of 1
 
-   asm volatile("ST Z+, r18");
-   asm volatile("ST Z, r19");
+   asm volatile("ST Z+, r10");
+   asm volatile("ST Z, r11");
 
 
-   asm volatile("MOV r30, r24");
-   asm volatile("LDI r31, 0x00");
-   asm volatile("LD r20, Z"); //r20 holds NT lower
+   asm volatile("MOVW r30, r24");
+   asm volatile("LD r12, Z+"); //r20 holds NT lower
 
-   asm volatile("MOV r30, r25");
-   asm volatile("LDI r31, 0x00");
-   asm volatile("LD r21, Z");
+   
+   asm volatile("LD r13, Z");
 
    asm volatile("LDI r31,0x00");// Z points to CPU Lower
    asm volatile("LDI r30,0x5D");
 
-   asm volatile("ST Z+, r20");
-   asm volatile("ST Z, r21");
+   asm volatile("ST Z+, r12");
+   asm volatile("ST Z, r13");
 
    
    //asm volatile("MOVW r30, r22"); //Z points to OT r23-r22

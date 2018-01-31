@@ -12,11 +12,11 @@
 int main(int argc, char *argv[]) {
    system_t system;
    int i = 0;
-   uint16_t test = 1;
+   uint32_t test = 20;
    serial_init();
 while(1)
 {
-	test = test * 2;
+	test = test + 1;
    for(i = 0; i < 10; i++)
 	   {
 	       _delay_ms(10);
@@ -32,7 +32,7 @@ while(1)
        led_off();
 
    context_switch(&(system.threads[0].sp), &(system.threads[0].sp));
-   print_hex(test);
+   print_hex32(test);
 
  }
    return 0;
