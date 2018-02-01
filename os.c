@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include "globals.h"
 #include "os.h"
+#include <stdlib.h>
 
 //This interrupt routine is automatically run every 10 milliseconds
 ISR(TIMER0_COMPA_vect) {
@@ -33,6 +34,8 @@ void start_system_timer() {
    OCR0A = 156;             //generate interrupt every 9.98 milliseconds
 }
 
+system_t system;
+int threadNum = 0;
 __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    asm volatile ("push r2");
    asm volatile ("push r3");
@@ -120,7 +123,30 @@ void os_init() {
 
 // Call once for each thread you want to create
 void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size) {
+   uint16_t defaultStackSize = 50;
+   uint16_t size = defaultStackSize + stack_size;
+   uint8_t addressHigh = address >> 8;
+   struct regs_context_switch *x; 
 
+   (system.threads[threadNum]).tName = name;
+   
+   (system.threads[threadNum]).base = (uint16_t)malloc(size);
+
+   (system.threads[threadNum]).sp = (system.threads[threadNum]).base + (size  - 1);
+
+   (system.threads[threadNum]).sp = (system.threads[threadNum]).sp - sizeof(struct regs_context_switch);
+
+   x = (struct regs_context_switch*) &((system.threads[threadNum]).sp);
+
+   x->r2 = addressHigh;
+   //Do address low
+   //put args high and low in regs
+   //put thread_start into pc
+
+   
+   (system.threads[threadNum]).sSize = stack_size;
+
+    threadNum++;
 }
 
 // start running the OS
