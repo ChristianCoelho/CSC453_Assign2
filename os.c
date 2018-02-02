@@ -18,8 +18,8 @@ ISR(TIMER0_COMPA_vect) {
    //Insert your code here
    //Call get_next_thread to get the thread id of the next thread to run
    //Call context switch here to switch to that next thread
-   get_next_thread();
-   context_switch();
+   // get_next_thread();
+   // context_switch();
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
    //and r0 before exiting the ISR
@@ -110,6 +110,14 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
 
 __attribute__((naked)) void thread_start(void) {
    sei(); //enable interrupts - leave as the first statement in thread_start()
+
+   // struct regs_context_switch *x;
+   // x = (struct regs_context_switch*) &((system.threads[0]).sp);
+
+   // MOVW r24, r4
+   // IJMP(blink);
+   // IJMP(stats);
+
 }
 
 // any OS specific init code
@@ -139,7 +147,7 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
    
    (system.threads[threadNum]).base = (uint16_t)malloc(size);
 
-   (system.threads[threadNum]).sp = (system.threads[threadNum]).base + (size  - 1);
+   (system.threads[threadNum]).sp = (system.threads[threadNum]).base + (size - 1);
 
    (system.threads[threadNum]).sp = (system.threads[threadNum]).sp - sizeof(struct regs_context_switch);
 
@@ -151,7 +159,8 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
    x->r5 = argsLow;
    x->pcl = tSLow;
    x->pch = tSHigh;
-   
+   // TODO: ask about low and high bytes
+
    (system.threads[threadNum]).sSize = stack_size;
 
    threadNum++;

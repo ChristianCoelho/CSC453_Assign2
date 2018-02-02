@@ -13,27 +13,30 @@ int main(int argc, char *argv[]) {
    system_t system;
    int i = 0;
    uint32_t test = 20;
-   serial_init();
-while(1)
-{
-	test = test + 1;
-   for(i = 0; i < 10; i++)
-	   {
-	       _delay_ms(10);
-	   }
+
+   os_init();
+   os_start();
+
+   while(1)
+   {
+      test = test + 1;
+      for(i = 0; i < 10; i++)
+	  {
+	    _delay_ms(10);
+	  }
 	   
-	   led_on();
+	  led_on();
 
-	   for(i = 0; i < 10; i++)
-	   {
-	       _delay_ms(10);
-	   }
+	  for(i = 0; i < 10; i++)
+	  {
+	      _delay_ms(10);
+	  }
 
-       led_off();
+      led_off();
 
-   context_switch(&(system.threads[0].sp), &(system.threads[0].sp));
-   print_hex32(test);
+      context_switch(&(system.threads[0].sp), &(system.threads[0].sp));
+      print_hex32(test);
 
- }
-   return 0;
+    }
+    return 0;
 }
