@@ -4,7 +4,13 @@
 #include "os.h"
 #include <stdlib.h>
 
+system_t system;
+int threadNum = 0;
+
 //This interrupt routine is automatically run every 10 milliseconds
+__attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp);
+uint8_t get_next_thread();
+
 ISR(TIMER0_COMPA_vect) {
    //At the beginning of this ISR, the registers r0, r1, and r18-31 have 
    //already been pushed to the stack
@@ -18,8 +24,11 @@ ISR(TIMER0_COMPA_vect) {
    //Insert your code here
    //Call get_next_thread to get the thread id of the next thread to run
    //Call context switch here to switch to that next thread
-   // get_next_thread();
-   // context_switch();
+
+   uint8_t oldThreadVal = threadNum;
+
+   uint8_t next_thread = get_next_thread();
+   context_switch((uint16_t *)(system.threads[next_thread]).sp, (uint16_t *)(system.threads[threadNum]).sp);
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
    //and r0 before exiting the ISR
@@ -34,9 +43,6 @@ void start_system_timer() {
    TCCR0B |= _BV(CS02) | _BV(CS00);    //prescalar /1024
    OCR0A = 156;             //generate interrupt every 9.98 milliseconds
 }
-
-system_t system;
-int threadNum = 0;
 __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    asm volatile ("push r2");
    asm volatile ("push r3");
@@ -111,12 +117,9 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
 __attribute__((naked)) void thread_start(void) {
    sei(); //enable interrupts - leave as the first statement in thread_start()
 
-   // struct regs_context_switch *x;
-   // x = (struct regs_context_switch*) &((system.threads[0]).sp);
-
-   // MOVW r24, r4
-   // IJMP(blink);
-   // IJMP(stats);
+   asm volatile("MOVW r24, r4");
+   asm volatile("MOVW r30, r2");
+   asm volatile("ijmp");
 
 }
 
