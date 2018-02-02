@@ -60,39 +60,33 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    // Saving temp regs
  
 
-   asm volatile("LDI r31,0x00");// Z points to CPU
+   asm volatile("LDI r31,0x00");
    asm volatile("LDI r30,0x5D");
-   asm volatile("LD r10, Z"); //r18 holds original CPU Lower
+   asm volatile("LD r10, Z"); 
 
-   asm volatile("LDI r31,0x00");// Z points to CPU
+   asm volatile("LDI r31,0x00");
    asm volatile("LDI r30,0x5E");
-   asm volatile("LD r11, Z"); //r19 holds original CPU Higher
+   asm volatile("LD r11, Z"); 
    
-   asm volatile("MOVW r30, r22"); // END of 1
+   asm volatile("MOVW r30, r22"); 
 
    asm volatile("ST Z+, r10");
    asm volatile("ST Z, r11");
 
 
    asm volatile("MOVW r30, r24");
-   asm volatile("LD r12, Z+"); //r20 holds NT lower
+   asm volatile("LD r12, Z+"); 
 
    
    asm volatile("LD r13, Z");
 
-   asm volatile("LDI r31,0x00");// Z points to CPU Lower
+   asm volatile("LDI r31,0x00");
    asm volatile("LDI r30,0x5D");
 
    asm volatile("ST Z+, r12");
    asm volatile("ST Z, r13");
 
    
-   //asm volatile("MOVW r30, r22"); //Z points to OT r23-r22
-   //asm volatile("LD r16, Z"); //r16 holds value pointed to by OT r23-r22
-
-
-  
-
    // Pop registers r2 through r17
    asm volatile("pop r17");
    asm volatile("pop r16");
@@ -125,7 +119,18 @@ void os_init() {
 void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size) {
    uint16_t defaultStackSize = 50;
    uint16_t size = defaultStackSize + stack_size;
+
+   uint16_t threadStart = (uint16_t) &(thread_start);
+   uint8_t tSLow = threadStart;
+   uint8_t tSHigh = threadStart >> 8;
+   
    uint8_t addressHigh = address >> 8;
+   uint8_t addressLow = address;
+   
+   uint16_t argAddress = (uint16_t) args;
+   uint8_t argsLow = argAddress;
+   uint8_t argsHigh = argAddress >> 8;
+
    struct regs_context_switch *x; 
 
    (system.threads[threadNum]).tName = name;
@@ -139,9 +144,12 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
    x = (struct regs_context_switch*) &((system.threads[threadNum]).sp);
 
    x->r2 = addressHigh;
-   //Do address low
-   //put args high and low in regs
-   //put thread_start into pc
+   x->r3 = addressLow;
+   x->r4 = argsHigh;
+   x->r5 = argsLow;
+   x->pcl = tSLow;
+   x->pch = tSHigh;
+  
 
    
    (system.threads[threadNum]).sSize = stack_size;
