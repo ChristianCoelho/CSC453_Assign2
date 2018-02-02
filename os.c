@@ -18,6 +18,7 @@ ISR(TIMER0_COMPA_vect) {
    //Insert your code here
    //Call get_next_thread to get the thread id of the next thread to run
    //Call context switch here to switch to that next thread
+   // get_next_thread();
    // context_switch();
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
@@ -163,4 +164,10 @@ void os_start() {
 
 // return id of next thread to run
 uint8_t get_next_thread() {
+   if(threadNum == 2)
+      threadNum = 1;
+   else if (threadNum == 1)
+      threadNum = 0;
+   else
+      threadNum = 0;
 }
