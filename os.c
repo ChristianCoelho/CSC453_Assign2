@@ -28,7 +28,7 @@ ISR(TIMER0_COMPA_vect) {
    uint8_t oldThreadVal = threadNum;
 
    uint8_t next_thread = get_next_thread();
-   context_switch((uint16_t *)(system.threads[next_thread]).sp, (uint16_t *)(system.threads[threadNum]).sp);
+   context_switch((uint16_t *)&((system.threads[next_thread]).sp), (uint16_t *)&((system.threads[threadNum]).sp));
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
    //and r0 before exiting the ISR
@@ -123,6 +123,7 @@ __attribute__((naked)) void thread_start(void) {
 
 }
 
+void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size);
 // any OS specific init code
 void os_init() {
    serial_init();
@@ -164,13 +165,14 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
    x->pch = tSHigh;
    // TODO: ask about low and high bytes
 
-   (system.threads[threadNum]).sSize = stack_size;
+   (system.threads[threadNum]).sSize = size;
 
    threadNum++;
 }
 
 // start running the OS
 void os_start() {
+   start_system_timer();
 }
 
 // return id of next thread to run

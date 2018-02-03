@@ -1,7 +1,7 @@
 #ifndef OS_H
 #define OS_H
 
-#include <util/delay.h>
+// #include <sys/time.h>
 
 //This structure defines the register order pushed to the stack on a
 //system context switch.
@@ -83,7 +83,7 @@ typedef struct{
    unsigned long int sysTime;
 }system_t;
 
-void function_blink();
+void function_blink()
 void function_stats();
 
 #endif
