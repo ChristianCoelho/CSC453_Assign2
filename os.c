@@ -25,7 +25,7 @@ ISR(TIMER0_COMPA_vect) {
    //Call get_next_thread to get the thread id of the next thread to run
    //Call context switch here to switch to that next thread
 
-   if(threadNum = 3)
+   if(threadNum == 3 || threadNum == 2)
       threadNum = 0;
 
    uint8_t oldThreadVal = threadNum;
