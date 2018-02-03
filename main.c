@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
    os_start();
 
    // context_switch(&(system.threads[0].sp), &(system.threads[0].sp));
-   context_switch(&(system.threads[0].sp), &main);
+   context_switch(&(system.threads[0].sp), &(system.threads[2].sp));
    return 0;
 }
 
@@ -43,6 +43,9 @@ void function_blink() {
     }
 }
 void function_stats(){
-   print_string("Yes");
+   while(1)
+   {
+      print_string("Yes");
+   }
 }
 
