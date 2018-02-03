@@ -25,9 +25,12 @@ ISR(TIMER0_COMPA_vect) {
    //Call get_next_thread to get the thread id of the next thread to run
    //Call context switch here to switch to that next thread
 
-   uint8_t oldThreadVal = threadNum;
+   if(threadNum = 3)
+      threadNum = 0;
 
+   uint8_t oldThreadVal = threadNum;
    uint8_t next_thread = get_next_thread();
+
    context_switch((uint16_t *)&((system.threads[next_thread]).sp), (uint16_t *)&((system.threads[threadNum]).sp));
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
