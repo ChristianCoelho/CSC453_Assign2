@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 system_t system;
-int threadNum = 0;
+int threadNum = 0, count = 0;
 
 //This interrupt routine is automatically run every 10 milliseconds
 __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp);
@@ -172,6 +172,7 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
 
    threadNum++;
    print_string("Thread created!");
+   print_hex(count++);
 }
 
 // start running the OS
