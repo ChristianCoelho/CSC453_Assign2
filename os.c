@@ -4,9 +4,11 @@
 #include "os.h"
 #include <stdlib.h>
 
-system_t system;
-int threadNum = 0, count = 0;
 
+system_t system;
+uint16_t volatile threadNum = 0;
+uint16_t volatile oldThreadVal;
+uint16_t volatile newThreadVal;
 //This interrupt routine is automatically run every 10 milliseconds
 __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp);
 uint8_t get_next_thread();
@@ -24,14 +26,30 @@ ISR(TIMER0_COMPA_vect) {
    //Insert your code here
    //Call get_next_thread to get the thread id of the next thread to run
    //Call context switch here to switch to that next thread
+ 
+   print_string("HELLO INTERRUPT WORLD");
+
 
    if(threadNum == 3 || threadNum == 2)
-      threadNum = 0;
+      threadNum = 1;
 
-   uint8_t oldThreadVal = threadNum;
-   uint8_t next_thread = get_next_thread();
 
-   context_switch((uint16_t *)&((system.threads[next_thread]).sp), (uint16_t *)&((system.threads[threadNum]).sp));
+   oldThreadVal = threadNum;
+
+   newThreadVal = get_next_thread();
+   
+  
+
+   
+  
+   print_string(" OLD: ");
+   print_int32(oldThreadVal);
+   print_string("NEW: ");
+   print_int32(threadNum);
+  
+
+
+   context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
    //and r0 before exiting the ISR
@@ -118,15 +136,14 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
 }
 
 __attribute__((naked)) void thread_start(void) {
-   sei(); //enable interrupts - leave as the first statement in thread_start()
-
+    
    asm volatile("MOVW r24, r4");
    asm volatile("MOVW r30, r2");
    asm volatile("ijmp");
 
 }
 
-void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size);
+
 // any OS specific init code
 void os_init() {
    serial_init();
@@ -166,27 +183,36 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
    x->r5 = argsLow;
    x->pcl = tSLow;
    x->pch = tSHigh;
+   x->eind = 0;
    
-
+   (system.threads[threadNum]).id = threadNum;
    (system.threads[threadNum]).sSize = size;
 
    threadNum++;
    print_string("Thread created!");
-   print_hex(count++);
+   print_hex(threadNum);
 }
 
 // start running the OS
 void os_start() {
    start_system_timer();
+   sei();
 }
 
 // return id of next thread to run
 uint8_t get_next_thread() {
    // 2 is the dummy thread
-   if(threadNum == 2)
-      threadNum = 1;
-   else if (threadNum == 1)
+ 
+   if (threadNum == 1)
+   {
       threadNum = 0;
+      return system.threads[0].id;
+   }
    else
+   {
       threadNum = 1;
+      return system.threads[1].id;
+   }
+
+
 }

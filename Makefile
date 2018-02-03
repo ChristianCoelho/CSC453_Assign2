@@ -1,6 +1,6 @@
 #Change this variable to point to your Arduino device
 #Mac - it may be different
-DEVICE = /dev/tty.usbmodem1461
+DEVICE = /dev/tty.usbmodem1431
 
 #Linux (/dev/ttyACM0 or possibly /dev/ttyUSB0)
 #DEVICE = /dev/ttyACM0 

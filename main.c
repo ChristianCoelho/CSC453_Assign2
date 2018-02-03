@@ -8,17 +8,24 @@
 #include <util/delay.h>
 #include "os.h"
 #include <string.h>
-
+void function_blink();
+void function_stats();
 int main(int argc, char *argv[]) {
    system_t system;
-   int i = 0;
+   int i = 1;
    uint32_t test = 20;
 
-   create_thread("blink", &function_blink, NULL, 50); // 0
-   create_thread("stats", &function_stats, NULL, 50); // 1
-   create_thread("main", &main, NULL, 50); // 2
    os_init();
+   print_string("We are in main");
+   //create_thread("blink", &function_blink, NULL, 50); // 0
+   //create_thread("stats", &function_stats, NULL, 50); // 1
+   //create_thread("main", &main, NULL, 50); // 2
+
    os_start();
+   while(1){
+   print_int(i);
+   i++;
+ }
 
    // context_switch(&(system.threads[0].sp), &(system.threads[0].sp));
    context_switch(&(system.threads[0].sp), &(system.threads[2].sp));

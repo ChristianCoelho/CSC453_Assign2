@@ -83,7 +83,5 @@ typedef struct{
    unsigned long int sysTime;
 }system_t;
 
-void function_blink();
-void function_stats();
 
 #endif
