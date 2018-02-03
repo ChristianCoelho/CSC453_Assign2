@@ -166,11 +166,12 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
    x->r5 = argsLow;
    x->pcl = tSLow;
    x->pch = tSHigh;
-   // TODO: ask about low and high bytes
+   
 
    (system.threads[threadNum]).sSize = size;
 
    threadNum++;
+   print_string("Thread created!");
 }
 
 // start running the OS
