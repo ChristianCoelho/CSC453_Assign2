@@ -13,6 +13,8 @@ uint16_t volatile newThreadVal;
 __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp);
 uint8_t get_next_thread();
 
+void print_int32(uint32_t i);
+
 ISR(TIMER0_COMPA_vect) {
    //At the beginning of this ISR, the registers r0, r1, and r18-31 have 
    //already been pushed to the stack
@@ -206,12 +208,12 @@ uint8_t get_next_thread() {
    if (threadNum == 1)
    {
       threadNum = 0;
-      return system.threads[0].id;
+      return threadNum;
    }
    else
    {
       threadNum = 1;
-      return system.threads[1].id;
+      return threadNum;
    }
 
 
