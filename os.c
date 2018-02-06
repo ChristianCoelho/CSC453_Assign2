@@ -6,9 +6,9 @@
 
 
 system_t system;
-uint16_t volatile threadNum = 0;
-uint16_t volatile oldThreadVal;
-uint16_t volatile newThreadVal;
+uint8_t volatile threadNum = 0;
+uint8_t volatile oldThreadVal;
+uint8_t volatile newThreadVal;
 //This interrupt routine is automatically run every 10 milliseconds
 __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp);
 uint8_t get_next_thread();
@@ -29,11 +29,11 @@ ISR(TIMER0_COMPA_vect) {
    //Call get_next_thread to get the thread id of the next thread to run
    //Call context switch here to switch to that next thread
  
-   print_string("HELLO INTERRUPT WORLD");
+   //print_string("HELLO INTERRUPT WORLD");
 
 
    if(threadNum == 3 || threadNum == 2)
-      threadNum = 1;
+      threadNum = 0;
 
 
    oldThreadVal = threadNum;
@@ -44,10 +44,10 @@ ISR(TIMER0_COMPA_vect) {
 
    
   
-   print_string(" OLD: ");
-   print_int32(oldThreadVal);
-   print_string("NEW: ");
-   print_int32(threadNum);
+   //print_string(" OLD: ");
+   //print_int32(oldThreadVal);
+   //print_string("NEW: ");
+   //print_int32(threadNum);
   
 
 
@@ -139,6 +139,7 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
 
 __attribute__((naked)) void thread_start(void) {
     
+   sei();
    asm volatile("MOVW r24, r4");
    asm volatile("MOVW r30, r2");
    asm volatile("ijmp");
@@ -156,15 +157,15 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
    uint16_t defaultStackSize = 50;
    uint16_t size = defaultStackSize + stack_size;
 
-   uint16_t threadStart = (uint16_t) &(thread_start);
-   uint8_t tSLow = threadStart;
+   uint16_t threadStart = (uint16_t)thread_start;
+   uint8_t tSLow = threadStart & 0xFF;
    uint8_t tSHigh = threadStart >> 8;
    
    uint8_t addressHigh = address >> 8;
-   uint8_t addressLow = address;
+   uint8_t addressLow = address & 0xFF;
    
    uint16_t argAddress = (uint16_t) args;
-   uint8_t argsLow = argAddress;
+   uint8_t argsLow = argAddress & 0xFF;
    uint8_t argsHigh = argAddress >> 8;
 
    struct regs_context_switch *x; 
@@ -177,12 +178,12 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
 
    (system.threads[threadNum]).sp = (system.threads[threadNum]).sp - sizeof(struct regs_context_switch);
 
-   x = (struct regs_context_switch*) &((system.threads[threadNum]).sp);
+   x = (struct regs_context_switch*) (system.threads[threadNum]).sp;
 
-   x->r2 = addressHigh;
-   x->r3 = addressLow;
-   x->r4 = argsHigh;
-   x->r5 = argsLow;
+   x->r3 = addressHigh;
+   x->r2 = addressLow;
+   x->r5 = argsHigh;
+   x->r4 = argsLow;
    x->pcl = tSLow;
    x->pch = tSHigh;
    x->eind = 0;
@@ -199,6 +200,7 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
 void os_start() {
    start_system_timer();
    sei();
+   context_switch(&(system.threads[0].sp), &(system.threads[2].sp));
 }
 
 // return id of next thread to run
