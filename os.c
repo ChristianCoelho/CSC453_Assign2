@@ -4,7 +4,17 @@
 #include "os.h"
 #include <stdlib.h>
 
+
+system_t system;
+uint8_t volatile threadNum = 0;
+uint8_t volatile oldThreadVal;
+uint8_t volatile newThreadVal;
 //This interrupt routine is automatically run every 10 milliseconds
+__attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp);
+uint8_t get_next_thread();
+
+void print_int32(uint32_t i);
+
 ISR(TIMER0_COMPA_vect) {
    //At the beginning of this ISR, the registers r0, r1, and r18-31 have 
    //already been pushed to the stack
@@ -18,7 +28,30 @@ ISR(TIMER0_COMPA_vect) {
    //Insert your code here
    //Call get_next_thread to get the thread id of the next thread to run
    //Call context switch here to switch to that next thread
-   // context_switch();
+ 
+   //print_string("HELLO INTERRUPT WORLD");
+
+
+   if(threadNum == 3 || threadNum == 2)
+      threadNum = 0;
+
+
+   oldThreadVal = threadNum;
+
+   newThreadVal = get_next_thread();
+   
+  
+
+   
+  
+   //print_string(" OLD: ");
+   //print_int32(oldThreadVal);
+   //print_string("NEW: ");
+   //print_int32(threadNum);
+  
+
+
+   context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
    //and r0 before exiting the ISR
@@ -33,9 +66,6 @@ void start_system_timer() {
    TCCR0B |= _BV(CS02) | _BV(CS00);    //prescalar /1024
    OCR0A = 156;             //generate interrupt every 9.98 milliseconds
 }
-
-system_t system;
-int threadNum = 0;
 __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    asm volatile ("push r2");
    asm volatile ("push r3");
@@ -60,36 +90,33 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    // Saving temp regs
  
 
-   asm volatile("LDI r31,0x00");// Z points to CPU
+   asm volatile("LDI r31,0x00");
    asm volatile("LDI r30,0x5D");
-   asm volatile("LD r10, Z"); //r18 holds original CPU Lower
+   asm volatile("LD r10, Z"); 
 
-   asm volatile("LDI r31,0x00");// Z points to CPU
+   asm volatile("LDI r31,0x00");
    asm volatile("LDI r30,0x5E");
-   asm volatile("LD r11, Z"); //r19 holds original CPU Higher
+   asm volatile("LD r11, Z"); 
    
-   asm volatile("MOVW r30, r22"); // END of 1
+   asm volatile("MOVW r30, r22"); 
 
    asm volatile("ST Z+, r10");
    asm volatile("ST Z, r11");
 
 
    asm volatile("MOVW r30, r24");
-   asm volatile("LD r12, Z+"); //r20 holds NT lower
+   asm volatile("LD r12, Z+"); 
 
    
    asm volatile("LD r13, Z");
 
-   asm volatile("LDI r31,0x00");// Z points to CPU Lower
+   asm volatile("LDI r31,0x00");
    asm volatile("LDI r30,0x5D");
 
    asm volatile("ST Z+, r12");
    asm volatile("ST Z, r13");
 
    
-   //asm volatile("MOVW r30, r22"); //Z points to OT r23-r22
-   //asm volatile("LD r16, Z"); //r16 holds value pointed to by OT r23-r22
-
    // Pop registers r2 through r17
    asm volatile("pop r17");
    asm volatile("pop r16");
@@ -111,45 +138,85 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
 }
 
 __attribute__((naked)) void thread_start(void) {
-   sei(); //enable interrupts - leave as the first statement in thread_start()
+    
+   sei();
+   asm volatile("MOVW r24, r4");
+   asm volatile("MOVW r30, r2");
+   asm volatile("ijmp");
+
 }
+
 
 // any OS specific init code
 void os_init() {
+   serial_init();
 }
 
 // Call once for each thread you want to create
 void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size) {
    uint16_t defaultStackSize = 50;
    uint16_t size = defaultStackSize + stack_size;
+
+   uint16_t threadStart = (uint16_t)thread_start;
+   uint8_t tSLow = threadStart & 0xFF;
+   uint8_t tSHigh = threadStart >> 8;
+   
    uint8_t addressHigh = address >> 8;
+   uint8_t addressLow = address & 0xFF;
+   
+   uint16_t argAddress = (uint16_t) args;
+   uint8_t argsLow = argAddress & 0xFF;
+   uint8_t argsHigh = argAddress >> 8;
+
    struct regs_context_switch *x; 
 
    (system.threads[threadNum]).tName = name;
    
    (system.threads[threadNum]).base = (uint16_t)malloc(size);
 
-   (system.threads[threadNum]).sp = (system.threads[threadNum]).base + (size  - 1);
+   (system.threads[threadNum]).sp = (system.threads[threadNum]).base + (size - 1);
 
    (system.threads[threadNum]).sp = (system.threads[threadNum]).sp - sizeof(struct regs_context_switch);
 
-   x = (struct regs_context_switch*) &((system.threads[threadNum]).sp);
+   x = (struct regs_context_switch*) (system.threads[threadNum]).sp;
 
-   x->r2 = addressHigh;
-   //Do address low
-   //put args high and low in regs
-   //put thread_start into pc
-
+   x->r3 = addressHigh;
+   x->r2 = addressLow;
+   x->r5 = argsHigh;
+   x->r4 = argsLow;
+   x->pcl = tSLow;
+   x->pch = tSHigh;
+   x->eind = 0;
    
-   (system.threads[threadNum]).sSize = stack_size;
+   (system.threads[threadNum]).id = threadNum;
+   (system.threads[threadNum]).sSize = size;
 
-    threadNum++;
+   threadNum++;
+   print_string("Thread created!");
+   print_hex(threadNum);
 }
 
 // start running the OS
 void os_start() {
+   start_system_timer();
+   sei();
+   context_switch(&(system.threads[0].sp), &(system.threads[2].sp));
 }
 
 // return id of next thread to run
 uint8_t get_next_thread() {
+   // 2 is the dummy thread
+ 
+   if (threadNum == 1)
+   {
+      threadNum = 0;
+      return threadNum;
+   }
+   else
+   {
+      threadNum = 1;
+      return threadNum;
+   }
+
+
 }
