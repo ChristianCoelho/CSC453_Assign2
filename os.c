@@ -236,3 +236,6 @@ void sem_signal(semaphore_t *s) {
 
 void sem_signal_swap(semaphore_t *s) {
 }
+
+void yield() {
+}

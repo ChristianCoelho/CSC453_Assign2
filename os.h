@@ -74,6 +74,7 @@ typedef struct {
    uint16_t sSize;
    uint16_t sp;
    uint16_t base;
+   uint16_t sched_count; // the number of times per second that the thread was run
 }thread_t;
 
 // system_t struct (an array of threads)
