@@ -90,9 +90,6 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    //asm volatile("MOVW r30, r22"); //Z points to OT r23-r22
    //asm volatile("LD r16, Z"); //r16 holds value pointed to by OT r23-r22
 
-
-  
-
    // Pop registers r2 through r17
    asm volatile("pop r17");
    asm volatile("pop r16");
