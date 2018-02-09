@@ -23,6 +23,8 @@ int main(int argc, char *argv[]) {
    create_thread("main", &main, NULL, 50); // 2
 
    os_start();
+   while(1) {
+   }
    
 
    // context_switch(&(system.threads[0].sp), &(system.threads[0].sp));
