@@ -3,6 +3,11 @@
 
 #include <util/delay.h>
 
+#define THREAD_RUNNING 0
+#define THREAD_READY 1
+#define THREAD_SLEEPING 2
+#define THREAD_WAITING 3
+
 //This structure defines the register order pushed to the stack on a
 //system context switch.
 struct regs_context_switch {
