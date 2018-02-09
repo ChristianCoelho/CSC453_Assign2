@@ -39,18 +39,12 @@ ISR(TIMER0_COMPA_vect) {
    oldThreadVal = threadNum;
 
    newThreadVal = get_next_thread();
-   
-  
-
-   
   
    //print_string(" OLD: ");
    //print_int32(oldThreadVal);
    //print_string("NEW: ");
    //print_int32(threadNum);
   
-
-
    context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
@@ -217,6 +211,28 @@ uint8_t get_next_thread() {
       threadNum = 1;
       return threadNum;
    }
+}
 
+void thread_sleep(uint16_t ticks) {
+}
 
+void mutex_init(mutex_t *m) {
+}
+
+void mutex_lock(mutex_t *m) {
+}
+
+void mutex_unlock(mutex_t *m) {
+}
+
+void sem_init(semaphore_t *s, int8_t value) {
+}
+
+void sem_wait(semaphore_t *s) {
+}
+
+void sem_signal(semaphore_t *s) {
+}
+
+void sem_signal_swap(semaphore_t *s) {
 }
