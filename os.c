@@ -32,7 +32,7 @@ ISR(TIMER0_COMPA_vect) {
    //print_string("HELLO INTERRUPT WORLD");
 
 
-   if(threadNum == 3 || threadNum == 2)
+   if(threadNum == 3) //IMPORTANT: SWITCH TO 6 WHEN IMPLEMENTING 6 THREADS
       threadNum = 0;
 
 
@@ -40,6 +40,16 @@ ISR(TIMER0_COMPA_vect) {
 
    newThreadVal = get_next_thread();
   
+   /*
+   print_string("OT: ");
+   print_int32(oldThreadVal);
+   print_string(" ");
+
+   print_string("NT: ");
+   print_int32(newThreadVal);
+   print_string(" ");
+   */
+
    context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 

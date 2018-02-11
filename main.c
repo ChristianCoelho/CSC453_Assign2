@@ -8,6 +8,9 @@
 #include <util/delay.h>
 #include "os.h"
 #include <string.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
 void function_blink();
 void function_stats();
 extern system_t system;
@@ -23,7 +26,9 @@ int main(int argc, char *argv[]) {
    create_thread("main", &main, NULL, 50); // 2
 
    os_start();
+   sei();
    while(1) {
+      print_string("I'm main.");
    }
    
 
