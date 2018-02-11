@@ -40,11 +40,6 @@ ISR(TIMER0_COMPA_vect) {
 
    newThreadVal = get_next_thread();
   
-   //print_string(" OLD: ");
-   //print_int32(oldThreadVal);
-   //print_string("NEW: ");
-   //print_int32(threadNum);
-  
    context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
@@ -199,14 +194,18 @@ void os_start() {
 
 // return id of next thread to run
 uint8_t get_next_thread() {
-   // 2 is the dummy thread
- 
+   // 2 is the main thread
    if (threadNum == 1)
    {
       threadNum = 0;
       return threadNum;
    }
-   else
+   else if (threadNum == 0)
+   {
+      threadNum = 2;
+      return threadNum;
+   }
+   else // if threadNum == 2
    {
       threadNum = 1;
       return threadNum;
