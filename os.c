@@ -32,7 +32,7 @@ ISR(TIMER0_COMPA_vect) {
    //print_string("HELLO INTERRUPT WORLD");
 
 
-   if(threadNum == 3) //IMPORTANT: SWITCH TO 6 WHEN IMPLEMENTING 6 THREADS
+   if(threadNum == 6) //IMPORTANT: SWITCH TO 6 WHEN IMPLEMENTING 6 THREADS
       threadNum = 0;
 
 
@@ -40,7 +40,6 @@ ISR(TIMER0_COMPA_vect) {
 
    newThreadVal = get_next_thread();
   
-   /*
    print_string("OT: ");
    print_int32(oldThreadVal);
    print_string(" ");
@@ -48,7 +47,6 @@ ISR(TIMER0_COMPA_vect) {
    print_string("NT: ");
    print_int32(newThreadVal);
    print_string(" ");
-   */
 
    context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
    
@@ -212,14 +210,34 @@ uint8_t get_next_thread() {
    }
    else if (threadNum == 0)
    {
+      threadNum = 5;
+      return threadNum;
+   }
+   else if (threadNum == 5)
+   {
+      threadNum = 4;
+      return threadNum;
+   }
+   else if (threadNum == 4)
+   {
+      threadNum = 3;
+      return threadNum;
+   }
+   else if (threadNum == 3)
+   {
       threadNum = 2;
       return threadNum;
    }
-   else // if threadNum == 2
+   else // if (threadNum == 2)
    {
       threadNum = 1;
       return threadNum;
    }
+   /*
+   else {
+      threadNum = 3;
+      return threadNum;
+   } */
 }
 
 void thread_sleep(uint16_t ticks) {
