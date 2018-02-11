@@ -80,6 +80,8 @@ typedef struct {
    uint16_t sp;
    uint16_t base;
    uint16_t sched_count; // the number of times per second that the thread was run
+   uint8_t threadState;
+   uint16_t sleepCycles;
 }thread_t;
 
 // system_t struct (an array of threads)

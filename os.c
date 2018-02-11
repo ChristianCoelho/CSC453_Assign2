@@ -32,7 +32,7 @@ ISR(TIMER0_COMPA_vect) {
    //print_string("HELLO INTERRUPT WORLD");
 
 
-   if(threadNum == 6) //IMPORTANT: SWITCH TO 6 WHEN IMPLEMENTING 6 THREADS
+   if(threadNum == 6) 
       threadNum = 0;
 
 
@@ -40,6 +40,7 @@ ISR(TIMER0_COMPA_vect) {
 
    newThreadVal = get_next_thread();
   
+   /*
    print_string("OT: ");
    print_int32(oldThreadVal);
    print_string(" ");
@@ -47,9 +48,19 @@ ISR(TIMER0_COMPA_vect) {
    print_string("NT: ");
    print_int32(newThreadVal);
    print_string(" ");
+   */
 
    context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
    
+   int i;
+   for (i = 0; i < 6; i++) {
+      if (system.threads[i].threadState == THREAD_SLEEPING)
+         if (system.threads[i].sleepCycles == 0)
+            system.threads[i].threadState = THREAD_READY;
+         else
+            system.threads[newThreadVal].sleepCycles--;
+   }
+
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
    //and r0 before exiting the ISR
 }
@@ -225,45 +236,158 @@ void os_start() {
 
 // return id of next thread to run
 uint8_t get_next_thread() {
-   // 2 is the main thread
-   if (threadNum == 1)
-   {
-      threadNum = 0;
-      return threadNum;
+   switch(threadNum) {
+      case 0:
+         if (system.threads[5].threadState != THREAD_SLEEPING) {
+            threadNum = 5;
+            return threadNum;
+         }
+         if (system.threads[4].threadState != THREAD_SLEEPING) {
+            threadNum = 4;
+            return threadNum;
+         }
+         if (system.threads[3].threadState != THREAD_SLEEPING) {
+            threadNum = 3;
+            return threadNum;
+         }
+         if (system.threads[2].threadState != THREAD_SLEEPING) {
+            threadNum = 2;
+            return threadNum;
+         }
+         if (system.threads[1].threadState != THREAD_SLEEPING) {
+            threadNum = 1;
+            return threadNum;
+         }
+         return threadNum;
+
+         case 5:
+         if (system.threads[4].threadState != THREAD_SLEEPING) {
+            threadNum = 4;
+            return threadNum;
+         }
+         if (system.threads[3].threadState != THREAD_SLEEPING) {
+            threadNum = 3;
+            return threadNum;
+         }
+         if (system.threads[2].threadState != THREAD_SLEEPING) {
+            threadNum = 2;
+            return threadNum;
+         }
+         if (system.threads[1].threadState != THREAD_SLEEPING) {
+            threadNum = 1;
+            return threadNum;
+         }
+         if (system.threads[0].threadState != THREAD_SLEEPING) {
+            threadNum = 0;
+            return threadNum;
+         }
+         return threadNum;
+
+         case 4:
+         if (system.threads[3].threadState != THREAD_SLEEPING) {
+            threadNum = 3;
+            return threadNum;
+         }
+         if (system.threads[2].threadState != THREAD_SLEEPING) {
+            threadNum = 2;
+            return threadNum;
+         }
+         if (system.threads[1].threadState != THREAD_SLEEPING) {
+            threadNum = 1;
+            return threadNum;
+         }
+         if (system.threads[0].threadState != THREAD_SLEEPING) {
+            threadNum = 0;
+            return threadNum;
+         }
+         if (system.threads[5].threadState != THREAD_SLEEPING) {
+            threadNum = 5;
+            return threadNum;
+         }
+         return threadNum;
+
+         case 3:
+         if (system.threads[2].threadState != THREAD_SLEEPING) {
+            threadNum = 2;
+            return threadNum;
+         }
+         if (system.threads[1].threadState != THREAD_SLEEPING) {
+            threadNum = 1;
+            return threadNum;
+         }
+         if (system.threads[0].threadState != THREAD_SLEEPING) {
+            threadNum = 0;
+            return threadNum;
+         }
+         if (system.threads[5].threadState != THREAD_SLEEPING) {
+            threadNum = 5;
+            return threadNum;
+         }
+         if (system.threads[4].threadState != THREAD_SLEEPING) {
+            threadNum = 4;
+            return threadNum;
+         }
+         return threadNum;
+
+         case 2:
+         if (system.threads[1].threadState != THREAD_SLEEPING) {
+            threadNum = 1;
+            return threadNum;
+         }
+         if (system.threads[0].threadState != THREAD_SLEEPING) {
+            threadNum = 0;
+            return threadNum;
+         }
+         if (system.threads[5].threadState != THREAD_SLEEPING) {
+            threadNum = 5;
+            return threadNum;
+         }
+         if (system.threads[4].threadState != THREAD_SLEEPING) {
+            threadNum = 4;
+            return threadNum;
+         }
+         if (system.threads[3].threadState != THREAD_SLEEPING) {
+            threadNum = 3;
+            return threadNum;
+         }
+         return threadNum;
+
+         case 1:
+         if (system.threads[0].threadState != THREAD_SLEEPING) {
+            threadNum = 0;
+            return threadNum;
+         }
+         if (system.threads[5].threadState != THREAD_SLEEPING) {
+            threadNum = 5;
+            return threadNum;
+         }
+         if (system.threads[4].threadState != THREAD_SLEEPING) {
+            threadNum = 4;
+            return threadNum;
+         }
+         if (system.threads[3].threadState != THREAD_SLEEPING) {
+            threadNum = 3;
+            return threadNum;
+         }
+         if (system.threads[2].threadState != THREAD_SLEEPING) {
+            threadNum = 2;
+            return threadNum;
+         }
+         return threadNum;
    }
-   else if (threadNum == 0)
-   {
-      threadNum = 5;
-      return threadNum;
-   }
-   else if (threadNum == 5)
-   {
-      threadNum = 4;
-      return threadNum;
-   }
-   else if (threadNum == 4)
-   {
-      threadNum = 3;
-      return threadNum;
-   }
-   else if (threadNum == 3)
-   {
-      threadNum = 2;
-      return threadNum;
-   }
-   else // if (threadNum == 2)
-   {
-      threadNum = 1;
-      return threadNum;
-   }
-   /*
-   else {
-      threadNum = 3;
-      return threadNum;
-   } */
 }
 
 void thread_sleep(uint16_t ticks) {
+   if (ticks ==1) {
+      oldThreadVal = threadNum;
+      newThreadVal = get_next_thread();
+
+      context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
+   }
+   else {
+      system.threads[threadNum].threadState = THREAD_SLEEPING;
+      system.threads[threadNum].sleepCycles = ticks;
+   }
 }
 
 void mutex_init(mutex_t *m) {
