@@ -7,6 +7,8 @@
 #define THREAD_READY 1
 #define THREAD_SLEEPING 2
 #define THREAD_WAITING 3
+#define TRUE 1
+#define FALSE 0
 
 //This structure defines the register order pushed to the stack on a
 //system context switch.
@@ -92,9 +94,13 @@ typedef struct {
 }system_t;
 
 typedef struct {
+   uint8_t waitList[9];
+   uint8_t tail;
+   uint8_t value;
 }semaphore_t;
 
 typedef struct {
+   uint8_t available;
 }mutex_t;
 
 #endif

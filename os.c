@@ -391,24 +391,65 @@ void thread_sleep(uint16_t ticks) {
 }
 
 void mutex_init(mutex_t *m) {
+   m->available = TRUE;
 }
 
 void mutex_lock(mutex_t *m) {
+   while (m->available)
+      ;
+   m->available = FALSE;
 }
 
 void mutex_unlock(mutex_t *m) {
+   m->available = TRUE;
 }
 
 void sem_init(semaphore_t *s, int8_t value) {
+   s->tail = 0;
+   s->value = value;
 }
 
 void sem_wait(semaphore_t *s) {
+   (s->value)--;
+
+   if(s->value <= 0)
+      s->waitList[s->tail] = threadNum;
+   // block the process
+   system.threads[threadNum].threadState = THREAD_WAITING;
 }
 
 void sem_signal(semaphore_t *s) {
+   int i;
+   s->value++;
+   if (s-> value <= 0) {
+      // Take the top one off and run it
+      system.threads[s->waitList[0]].threadState = THREAD_RUNNING;
+      for (i = 0; i < s->tail - 1; i++) {
+         s->waitList[i] = s->waitList[i + 1];
+      }
+      (s->tail)--;
+   }
 }
 
 void sem_signal_swap(semaphore_t *s) {
+   int i;
+   s->value++;
+   if (s-> value <= 0) {
+      // Take the top one off and run it
+      system.threads[s->waitList[0]].threadState = THREAD_RUNNING;
+
+      // TODO inspect this section
+      oldThreadVal = threadNum;
+      newThreadVal = get_next_thread();
+
+      context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
+
+      for (i = 0; i < s->tail - 1; i++) {
+         s->waitList[i] = s->waitList[i + 1];
+      }
+      (s->tail)--;
+   }
+  
 }
 
 void yield() {
