@@ -428,6 +428,7 @@ void sem_signal(semaphore_t *s) {
          s->waitList[i] = s->waitList[i + 1];
       }
       (s->tail)--;
+      (s->value)--;
    }
 }
 
@@ -448,6 +449,7 @@ void sem_signal_swap(semaphore_t *s) {
          s->waitList[i] = s->waitList[i + 1];
       }
       (s->tail)--;
+      (s->value)--;
    }
   
 }
