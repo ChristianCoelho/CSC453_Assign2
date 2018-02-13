@@ -3,15 +3,18 @@
 #include "globals.h"
 #include "os.h"
 #include <stdlib.h>
-
+#define MAXTHREADS 6
 
 system_t system;
 uint8_t volatile threadNum = 0;
+
 uint8_t volatile oldThreadVal;
 uint8_t volatile newThreadVal;
 //This interrupt routine is automatically run every 10 milliseconds
 __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp);
+
 uint8_t get_next_thread();
+void sleep_refresh();
 
 void print_int32(uint32_t i);
 
@@ -32,13 +35,15 @@ ISR(TIMER0_COMPA_vect) {
    //print_string("HELLO INTERRUPT WORLD");
 
 
-   if(threadNum == 6) 
+   if(threadNum == MAXTHREADS) //Think about this make sure it isn't always running.
       threadNum = 0;
 
 
    oldThreadVal = threadNum;
 
    newThreadVal = get_next_thread();
+
+   sleep_refresh();
   
    /*
    print_string("OT: ");
@@ -52,14 +57,7 @@ ISR(TIMER0_COMPA_vect) {
 
    context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
    
-   int i;
-   for (i = 0; i < 6; i++) {
-      if (system.threads[i].threadState == THREAD_SLEEPING)
-         if (system.threads[i].sleepCycles == 0)
-            system.threads[i].threadState = THREAD_READY;
-         else
-            system.threads[newThreadVal].sleepCycles--;
-   }
+   
 
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
    //and r0 before exiting the ISR
@@ -236,149 +234,42 @@ void os_start() {
 
 // return id of next thread to run
 uint8_t get_next_thread() {
-   switch(threadNum) {
-      case 0:
-         if (system.threads[5].threadState != THREAD_SLEEPING) {
-            threadNum = 5;
-            return threadNum;
-         }
-         if (system.threads[4].threadState != THREAD_SLEEPING) {
-            threadNum = 4;
-            return threadNum;
-         }
-         if (system.threads[3].threadState != THREAD_SLEEPING) {
-            threadNum = 3;
-            return threadNum;
-         }
-         if (system.threads[2].threadState != THREAD_SLEEPING) {
-            threadNum = 2;
-            return threadNum;
-         }
-         if (system.threads[1].threadState != THREAD_SLEEPING) {
-            threadNum = 1;
-            return threadNum;
-         }
+   int i = threadNum;
+   int ogThreadNum = threadNum;
+   while(1){
+      i++;
+      if( i == 6)
+      {
+        i = 0;
+      }
+      
+      if(system.threads[i].threadState = THREAD_READY)
+      {
+         threadNum = i;
+         return threadNum;
+      }
+
+      if( i == ogThreadNum)
          return threadNum;
 
-         case 5:
-         if (system.threads[4].threadState != THREAD_SLEEPING) {
-            threadNum = 4;
-            return threadNum;
-         }
-         if (system.threads[3].threadState != THREAD_SLEEPING) {
-            threadNum = 3;
-            return threadNum;
-         }
-         if (system.threads[2].threadState != THREAD_SLEEPING) {
-            threadNum = 2;
-            return threadNum;
-         }
-         if (system.threads[1].threadState != THREAD_SLEEPING) {
-            threadNum = 1;
-            return threadNum;
-         }
-         if (system.threads[0].threadState != THREAD_SLEEPING) {
-            threadNum = 0;
-            return threadNum;
-         }
-         return threadNum;
-
-         case 4:
-         if (system.threads[3].threadState != THREAD_SLEEPING) {
-            threadNum = 3;
-            return threadNum;
-         }
-         if (system.threads[2].threadState != THREAD_SLEEPING) {
-            threadNum = 2;
-            return threadNum;
-         }
-         if (system.threads[1].threadState != THREAD_SLEEPING) {
-            threadNum = 1;
-            return threadNum;
-         }
-         if (system.threads[0].threadState != THREAD_SLEEPING) {
-            threadNum = 0;
-            return threadNum;
-         }
-         if (system.threads[5].threadState != THREAD_SLEEPING) {
-            threadNum = 5;
-            return threadNum;
-         }
-         return threadNum;
-
-         case 3:
-         if (system.threads[2].threadState != THREAD_SLEEPING) {
-            threadNum = 2;
-            return threadNum;
-         }
-         if (system.threads[1].threadState != THREAD_SLEEPING) {
-            threadNum = 1;
-            return threadNum;
-         }
-         if (system.threads[0].threadState != THREAD_SLEEPING) {
-            threadNum = 0;
-            return threadNum;
-         }
-         if (system.threads[5].threadState != THREAD_SLEEPING) {
-            threadNum = 5;
-            return threadNum;
-         }
-         if (system.threads[4].threadState != THREAD_SLEEPING) {
-            threadNum = 4;
-            return threadNum;
-         }
-         return threadNum;
-
-         case 2:
-         if (system.threads[1].threadState != THREAD_SLEEPING) {
-            threadNum = 1;
-            return threadNum;
-         }
-         if (system.threads[0].threadState != THREAD_SLEEPING) {
-            threadNum = 0;
-            return threadNum;
-         }
-         if (system.threads[5].threadState != THREAD_SLEEPING) {
-            threadNum = 5;
-            return threadNum;
-         }
-         if (system.threads[4].threadState != THREAD_SLEEPING) {
-            threadNum = 4;
-            return threadNum;
-         }
-         if (system.threads[3].threadState != THREAD_SLEEPING) {
-            threadNum = 3;
-            return threadNum;
-         }
-         return threadNum;
-
-         case 1:
-         if (system.threads[0].threadState != THREAD_SLEEPING) {
-            threadNum = 0;
-            return threadNum;
-         }
-         if (system.threads[5].threadState != THREAD_SLEEPING) {
-            threadNum = 5;
-            return threadNum;
-         }
-         if (system.threads[4].threadState != THREAD_SLEEPING) {
-            threadNum = 4;
-            return threadNum;
-         }
-         if (system.threads[3].threadState != THREAD_SLEEPING) {
-            threadNum = 3;
-            return threadNum;
-         }
-         if (system.threads[2].threadState != THREAD_SLEEPING) {
-            threadNum = 2;
-            return threadNum;
-         }
-         return threadNum;
    }
 }
 
+void sleep_refresh() {
+   int i = 0;
+
+   for (i = 0; i < MAXTHREADS; i++) {
+      if (system.threads[i].threadState == THREAD_SLEEPING)
+         if (system.threads[i].sleepCycles == 0)
+            system.threads[i].threadState = THREAD_READY;
+         else
+            system.threads[newThreadVal].sleepCycles--;
+   }
+}
+   
+
 void thread_sleep(uint16_t ticks) {
-   if (ticks ==1) {
+   if (ticks == 1) {
       oldThreadVal = threadNum;
       newThreadVal = get_next_thread();
 
@@ -392,67 +283,172 @@ void thread_sleep(uint16_t ticks) {
 
 void mutex_init(mutex_t *m) {
    m->available = TRUE;
+   m->tail = 0;
+   m->head = 0;
+   m->waitlistMax = 6;
 }
 
 void mutex_lock(mutex_t *m) {
-   while (m->available)
-      ;
+   uint8_t next;
+   if (m->available){
+      //Book as while loop
+
+      // next is where head will point after.
+      next = m->head + 1;
+      if (next >= m->waitlistMax)
+        next = 0;
+
+      if (next == m->tail) // check if circular buffer is full
+         print_string("Buffer is full");
+
+      m->waitList[m->head] = threadNum;
+
+      system.threads[threadNum].threadState = THREAD_WAITING;
+     
+      m->head = next; //CHECK THIS WITH SENG
+
+   }
    m->available = FALSE;
 }
 
 void mutex_unlock(mutex_t *m) {
+   uint8_t readyThread = m->waitList[(m->head)];
+   uint8_t next;
+
    m->available = TRUE;
+
+   system.threads[readyThread].threadState = THREAD_READY;
+
+      //Waitlist update
+      if (m->head == m->tail){ // check if buffer is empty
+         print_string("empty");
+      } 
+
+      next = m->tail + 1;
+
+      if(next >= m->waitlistMax){
+        next = 0;
+      }
+
+      m->tail = next; 
 }
 
 void sem_init(semaphore_t *s, int8_t value) {
    s->tail = 0;
+   s->head = 0;
    s->value = value;
+   s->waitlistMax = 6;
 }
 
 void sem_wait(semaphore_t *s) {
+   uint8_t next;
    (s->value)--;
+   
+   if(s->value < 0)
+   {
+      // next is where head will point after.
+    next = s->head + 1;
+    if (next >= s->waitlistMax)
+        next = 0;
 
-   if(s->value <= 0)
-      s->waitList[s->tail] = threadNum;
-   // block the process
-   system.threads[threadNum].threadState = THREAD_WAITING;
+    if (next == s->tail) // check if circular buffer is full
+       print_string("Buffer is full");
+
+    s->waitList[s->head] = threadNum;
+
+    system.threads[threadNum].threadState = THREAD_WAITING;
+     
+    s->head = next;            // head to next offset.
+
+    // block the process IS this right to block??
+    uint8_t oldVal, newVal;
+
+    oldVal = threadNum;
+
+    newVal = get_next_thread();
+
+    context_switch(&(system.threads[newVal].sp), &(system.threads[oldVal].sp));
+
+    
+   }
+
+   
 }
 
 void sem_signal(semaphore_t *s) {
    int i;
-   s->value++;
-   if (s-> value <= 0) {
-      // Take the top one off and run it
-      system.threads[s->waitList[0]].threadState = THREAD_RUNNING;
-      for (i = 0; i < s->tail - 1; i++) {
-         s->waitList[i] = s->waitList[i + 1];
+   uint8_t readyThread = s->waitList[(s->head)];
+   uint8_t next;
+   (s->value)++;
+
+   if (s->value <= 0) { //should be 0 or -1???
+      
+      // Take the top one off and prepare it to run
+
+      system.threads[readyThread].threadState = THREAD_READY;
+
+      //Waitlist update
+      if (s->head == s->tail){ // check if buffer is empty
+         print_string("empty");
+      } 
+
+      next = s->tail + 1;
+
+      if(next >= s->waitlistMax){
+        next = 0;
       }
-      (s->tail)--;
-      (s->value)--;
+
+      s->tail = next;             // tail to next.
    }
 }
+   
+   
+
 
 void sem_signal_swap(semaphore_t *s) {
    int i;
-   s->value++;
-   if (s-> value <= 0) {
+   uint8_t runThread = s->waitList[(s->head)];
+   uint8_t next;
+   (s->value)++;
+
+   if (s->value <= 0) {
       // Take the top one off and run it
-      system.threads[s->waitList[0]].threadState = THREAD_RUNNING;
+      
 
-      // TODO inspect this section
+      system.threads[runThread].threadState = THREAD_RUNNING;
+      system.threads[threadNum].threadState = THREAD_READY;
+
       oldThreadVal = threadNum;
-      newThreadVal = get_next_thread();
+      newThreadVal = runThread;
+      threadNum = runThread;
 
+      if (s->head == s->tail){
+          // check if buffer is empty
+         print_string("something weird is happening");
+      }  //shouldn't happen
+
+      next = s->tail + 1;
+
+      if(next >= s->waitlistMax){
+
+        next = 0;
+      }
+
+      s->tail = next;             // tail to next.
+      
       context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
 
-      for (i = 0; i < s->tail - 1; i++) {
-         s->waitList[i] = s->waitList[i + 1];
-      }
-      (s->tail)--;
-      (s->value)--;
    }
   
 }
 
 void yield() {
+   uint8_t oldVal, newVal;
+
+   oldVal = threadNum;
+
+   newVal = get_next_thread();
+
+   context_switch(&(system.threads[newVal].sp), &(system.threads[oldVal].sp));
+   
 }
