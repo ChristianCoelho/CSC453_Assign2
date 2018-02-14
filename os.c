@@ -15,7 +15,7 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp);
 
 uint8_t get_next_thread();
 void sleep_refresh();
-
+void yield();
 void print_int32(uint32_t i);
 
 ISR(TIMER0_COMPA_vect) {
@@ -289,9 +289,10 @@ void mutex_init(mutex_t *m) {
 }
 
 void mutex_lock(mutex_t *m) {
+   cli();
    uint8_t next;
+
    if (m->available){
-      //Book as while loop
 
       // next is where head will point after.
       next = m->head + 1;
@@ -305,13 +306,15 @@ void mutex_lock(mutex_t *m) {
 
       system.threads[threadNum].threadState = THREAD_WAITING;
      
-      m->head = next; //CHECK THIS WITH SENG
+      m->head = next; 
 
    }
    m->available = FALSE;
+   sei();
 }
 
 void mutex_unlock(mutex_t *m) {
+   cli();
    uint8_t readyThread = m->waitList[(m->head)];
    uint8_t next;
 
@@ -330,7 +333,8 @@ void mutex_unlock(mutex_t *m) {
         next = 0;
       }
 
-      m->tail = next; 
+      m->tail = next;
+      sei(); 
 }
 
 void sem_init(semaphore_t *s, int8_t value) {
@@ -341,6 +345,7 @@ void sem_init(semaphore_t *s, int8_t value) {
 }
 
 void sem_wait(semaphore_t *s) {
+   cli();
    uint8_t next;
    (s->value)--;
    
@@ -360,14 +365,9 @@ void sem_wait(semaphore_t *s) {
      
     s->head = next;            // head to next offset.
 
-    // block the process IS this right to block??
-    uint8_t oldVal, newVal;
-
-    oldVal = threadNum;
-
-    newVal = get_next_thread();
-
-    context_switch(&(system.threads[newVal].sp), &(system.threads[oldVal].sp));
+    // blocking area goes to new thread because of wait
+    
+    yield();
 
     
    }
@@ -376,6 +376,7 @@ void sem_wait(semaphore_t *s) {
 }
 
 void sem_signal(semaphore_t *s) {
+   cli();
    int i;
    uint8_t readyThread = s->waitList[(s->head)];
    uint8_t next;
@@ -399,6 +400,7 @@ void sem_signal(semaphore_t *s) {
       }
 
       s->tail = next;             // tail to next.
+      sei();
    }
 }
    
@@ -406,6 +408,7 @@ void sem_signal(semaphore_t *s) {
 
 
 void sem_signal_swap(semaphore_t *s) {
+   cli();
    int i;
    uint8_t runThread = s->waitList[(s->head)];
    uint8_t next;
@@ -435,7 +438,8 @@ void sem_signal_swap(semaphore_t *s) {
       }
 
       s->tail = next;             // tail to next.
-      
+      sei();
+
       context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
 
    }

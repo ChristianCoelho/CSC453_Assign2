@@ -89,8 +89,7 @@ typedef struct {
 // system_t struct (an array of threads)
 typedef struct {
    thread_t threads[9];
-   uint8_t curThread;
-   unsigned long int sysTime;
+   uint8_t curThread;//Never used
 }system_t;
 
 typedef struct {

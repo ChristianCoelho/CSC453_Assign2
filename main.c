@@ -2,7 +2,6 @@
  * @author Christian Coelho & Justin Tomas
  */
 
-// #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <util/delay.h>
@@ -20,7 +19,9 @@ void display_bounded_buffer();
 void producer();
 void consumer();
 extern system_t system;
-
+mutex_t prMutex;
+mutex_t crMutex;
+semaphore_t bSem;
 int main(int argc, char *argv[]) {
    int i = 1;
    uint32_t test = 20;
@@ -34,6 +35,9 @@ int main(int argc, char *argv[]) {
    create_thread("producer", &producer, NULL, 50); // 4
    create_thread("consumer", &consumer, NULL, 50); // 5
 
+   mutex_init(prMutex);
+   mutex_init(crMutex);
+   sem_init(bSem,4); //Check if four is right
    os_start();
 
    sei();
@@ -83,42 +87,43 @@ void function_stats() {
 
 void display_bounded_buffer() {
    int i  = 0;
-   //while(1) {
-
-      print_string("I'm bounded buffer. ");
-      for( i = 0; i < buffer; i++)
-      {
-        print_string("Item: ");
-        print_int32(i);
-        print_string("\n");
-      }
-      print_string("Production: ");
-      print_int32(pRate);
+   
+   
+   print_string("I'm bounded buffer. ");
+   for( i = 0; i < buffer; i++)
+   {
+      print_string("Item: ");
+      print_int32(i);
       print_string("\n");
+   }
+      
+   print_string("Production: ");
+   print_int32(pRate);
+   print_string("\n");
 
-      print_string("Consumer: ");
-      print_int32(cRate);
-      print_string("\n");
-   //}
+   print_string("Consumer: ");
+   print_int32(cRate);
+   print_string("\n");
+
 }
 
 void producer() {
-   /*while(1) {
-      print_string("I'm producer. ");
-   }*/
+   
+   print_string("I'm producer. ");
+   
 
-    thread_sleep(pRate);
-    buffer++;
-    if(buffer > 10)
+   thread_sleep(pRate);
+   buffer++;
+   if(buffer > 10)
       buffer = 10;
 }
 
 void consumer() {
-   /*while(1) {
-      print_string("I'm consumer. ");
-   }*/
+   
+   print_string("I'm consumer. ");
+   
    thread_sleep(cRate);
    buffer--;
    if(buffer < 0)
-    buffer = 0;
+      buffer = 0;
 }
