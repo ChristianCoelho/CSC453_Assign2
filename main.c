@@ -47,19 +47,101 @@ void function_blink() {
     }
 }
 void function_stats(){
+   uint16_t sysTime = 0;
+   clear_screen();
    while(1)
    {
-      print_string("Stack base 0: ");
-      print_int32(system.threads[0].base);
+      if((system.intCount % 100) == 0)
+        sysTime++;
 
-      print_string("SP 0: ");
-      print_int32(system.threads[0].sp);
+      set_cursor_home();
+      print_string("System Time: ");
+      print_int(sysTime);
+      
+      set_cursor(3, 0);
+      print_string("Number of threads: ");
+      print_int(system.totalThreads);
+      
 
-      print_string("Stack base 1: ");
-      print_int32(system.threads[1].base);
+      set_cursor(4, 0);
+      print_string("Thread ID:");
+      print_int(system.threads[0].id);
+      
 
-      print_string("SP 1: "); 
-      print_int32(system.threads[1].sp);
+      set_cursor(5, 0);
+      print_string("Thread Name:");
+      print_string(system.threads[0].tName);
+      
+
+      set_cursor(6, 0);
+      print_string("Thread PC:");
+      //print_string(system.threads[0].tName);
+      
+
+      set_cursor(7, 0);
+      print_string("Stack Usage:");
+      //print_string(system.threads[0].tName);
+     
+
+      set_cursor(8, 0);
+      print_string("Total Stack Size:");
+      print_string(system.threads[0].sSize);
+      
+
+      set_cursor(9, 0);
+      print_string("Current top of Stack:");
+      //print_string(system.threads[0].tName);
+
+      set_cursor(10, 0);
+      print_string("Stack base:");
+      print_int(system.threads[0].base);
+
+      set_cursor(11, 0);
+      print_string("Stack end:");
+      //print_int(system.threads[0].base);
+
+      set_cursor(12, 0);
+      print_string("SP: ");
+      print_int(system.threads[0].sp);
+
+      //Theard 1
+      
+      set_cursor(14, 0);
+      print_string("Thread ID:");
+      print_int(system.threads[1].id);
+      
+      set_cursor(15, 0);
+      print_string("Thread Name:");
+      print_string(system.threads[1].tName);
+
+      set_cursor(16, 0);
+      print_string("Thread PC:");
+      //print_string(system.threads[1].tName);
+
+      set_cursor(17, 0);
+      print_string("Stack Usage:");
+      //print_string(system.threads[1].tName);
+
+      set_cursor(18, 0);
+      print_string("Total Stack Size:");
+      print_string(system.threads[1].sSize);
+
+      set_cursor(19, 0);
+      print_string("Current top of Stack:");
+      //print_string(system.threads[1].tName);
+
+      set_cursor(20, 0);
+      print_string("Stack base:");
+      print_int(system.threads[1].base);
+
+      set_cursor(21, 0);
+      print_string("Stack end:");
+      //print_int(system.threads[1].base);
+
+      set_cursor(22, 0);
+      print_string("SP: ");
+      print_int(system.threads[1].sp);
+      
    }
 }
 
