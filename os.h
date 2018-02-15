@@ -63,13 +63,6 @@ struct regs_interrupt {
    uint8_t r20;
    uint8_t r19;
    uint8_t r18;
-   uint8_t rampz; // rampz
-   uint8_t sreg;  // status register
-   uint8_t r0;
-   uint8_t r1;
-   uint8_t eind;
-   uint8_t pch;
-   uint8_t pcl;
 
    //RAMPZ and SREG are 2 other state registers in the AVR architecture
    uint8_t rampz; //RAMPZ register

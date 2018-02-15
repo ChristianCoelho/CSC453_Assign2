@@ -21,7 +21,12 @@ void consumer();
 extern system_t system;
 mutex_t prMutex;
 mutex_t crMutex;
-semaphore_t bSem;
+mutex_t proMutex;
+mutex_t conMutex;
+semaphore_t empty;
+semaphore_t full;
+semaphore_t m;
+
 int main(int argc, char *argv[]) {
    int i = 1;
    uint32_t test = 20;
@@ -37,7 +42,12 @@ int main(int argc, char *argv[]) {
 
    mutex_init(prMutex);
    mutex_init(crMutex);
-   sem_init(bSem,4); //Check if four is right
+   mutex_init(proMutex);
+   mutex_init(conMutex);
+
+   sem_init(empty, 10);
+   sem_init(full, 0);
+   sem_init(m, 1);
    os_start();
 
    sei();
@@ -88,7 +98,6 @@ void function_stats() {
 void display_bounded_buffer() {
    int i  = 0;
    
-   
    print_string("I'm bounded buffer. ");
    for( i = 0; i < buffer; i++)
    {
@@ -109,21 +118,43 @@ void display_bounded_buffer() {
 
 void producer() {
    
+   uint8_t producedItem;
    print_string("I'm producer. ");
-   
 
-   thread_sleep(pRate);
-   buffer++;
-   if(buffer > 10)
-      buffer = 10;
+   while(1) {
+      thread_sleep(pRate);
+      producedItem = 1;
+
+      sem_wait(empty);
+      sem_wait(m);
+
+      //Add item to buffer
+      buffer += producedItem;
+      if(buffer > 10)
+         buffer = 10;
+
+      sem_signal(m);
+      sem_signal(full);
+   }
 }
 
 void consumer() {
-   
    print_string("I'm consumer. ");
+
+   while(1) {
+      sem_wait(full);
+      sem_wait(m);
+
+      thread_sleep(cRate);
    
-   thread_sleep(cRate);
-   buffer--;
-   if(buffer < 0)
-      buffer = 0;
+      // Remove item from buffer
+      buffer--;
+      if(buffer < 0)
+         buffer = 0;
+      
+      sem_signal(m);
+      sem_signal(empty);
+
+      // Consume item
+   }
 }

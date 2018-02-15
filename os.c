@@ -26,7 +26,7 @@ ISR(TIMER0_COMPA_vect) {
    //for this interrupt routine.  These registers (along with r0 and r1) 
    //will automatically be pushed and popped by this interrupt routine.
    asm volatile ("" : : : "r18", "r19", "r20", "r21", "r22", "r23", "r24", \
-                 "r25", "r26", "r27", "r28", "r29", "r30", "r31");                        
+                 "r25", "r26", "r27", "r30", "r31");                        
 
    //Insert your code here
    //Call get_next_thread to get the thread id of the next thread to run
@@ -112,6 +112,8 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
    asm volatile ("push r15");
    asm volatile ("push r16");
    asm volatile ("push r17");
+   asm volatile ("push r28");
+   asm volatile ("push r29");
 
    // Take SP from CPU, put into SP for T1 (CPU SP located at 0x5E (high byte) and Ox5D(low byte))
    // Take SP from T2, put into SP from CPU
@@ -147,6 +149,8 @@ __attribute__((naked)) void context_switch(uint16_t *new_tp, uint16_t *old_tp) {
 
    
    // Pop registers r2 through r17
+   asm volatile("pop r29");
+   asm volatile("pop r28");
    asm volatile("pop r17");
    asm volatile("pop r16");
    asm volatile("pop r15");
@@ -297,7 +301,7 @@ void mutex_lock(mutex_t *m) {
       // next is where head will point after.
       next = m->head + 1;
       if (next >= m->waitlistMax)
-        next = 0;
+         next = 0;
 
       if (next == m->tail) // check if circular buffer is full
          print_string("Buffer is full");
