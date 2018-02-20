@@ -33,7 +33,7 @@ ISR(TIMER0_COMPA_vect) {
    //Call context switch here to switch to that next thread
  
    //print_string("HELLO INTERRUPT WORLD");
-
+   (system.intCount)++;
 
    if(threadNum == MAXTHREADS) //Think about this make sure it isn't always running.
       threadNum = 0;
@@ -182,6 +182,8 @@ __attribute__((naked)) void thread_start(void) {
 
 // any OS specific init code
 void os_init() {
+   system.totalThreads = 0;
+   system.intCount = 0;
    serial_init();
 }
 
@@ -224,9 +226,12 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
    (system.threads[threadNum]).id = threadNum;
    (system.threads[threadNum]).sSize = size;
 
+   (system.totalThreads)++;
    threadNum++;
    print_string("Thread created!");
    print_hex(threadNum);
+
+
 }
 
 // start running the OS

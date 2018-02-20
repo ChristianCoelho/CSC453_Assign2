@@ -10,6 +10,8 @@
 #define TRUE 1
 #define FALSE 0
 
+#endif
+
 //This structure defines the register order pushed to the stack on a
 //system context switch.
 struct regs_context_switch {
@@ -91,24 +93,6 @@ typedef struct {
 // system_t struct (an array of threads)
 typedef struct {
    thread_t threads[9];
-   uint8_t curThread;//Never used
+   uint8_t totalThreads;
+   uint16_t intCount;
 }system_t;
-
-typedef struct {
-   uint8_t waitList[6];
-   uint8_t tail;
-   uint8_t head;
-   uint8_t value;
-   uint8_t waitlistMax;
-}semaphore_t;
-
-typedef struct {
-   uint8_t available;
-   uint8_t waitList[6];
-   uint8_t tail;
-   uint8_t head;
-   uint8_t waitlistMax;
-   
-}mutex_t;
-
-#endif
