@@ -96,3 +96,20 @@ typedef struct {
    uint8_t totalThreads;
    uint16_t intCount;
 }system_t;
+
+typedef struct {
+   uint8_t waitList[6];
+   uint8_t tail;
+   uint8_t head;
+   uint8_t value;
+   uint8_t waitlistMax;
+}semaphore_t;
+
+
+typedef struct {
+   uint8_t available;
+   uint8_t waitList[6];
+   uint8_t tail;
+   uint8_t head;
+   uint8_t waitlistMax;
+}mutex_t;
