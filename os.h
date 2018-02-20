@@ -3,6 +3,8 @@
 
 #include <util/delay.h>
 
+#endif
+
 //This structure defines the register order pushed to the stack on a
 //system context switch.
 struct regs_context_switch {
@@ -83,5 +85,3 @@ typedef struct{
    uint16_t intCount;
 }system_t;
 
-
-#endif

@@ -75,22 +75,22 @@ void function_stats(){
 
       set_cursor(6, 0);
       print_string("Thread PC:");
-      //print_string(system.threads[0].tName);
-      
+      print_int(&function_stats);
+
 
       set_cursor(7, 0);
       print_string("Stack Usage:");
-      //print_string(system.threads[0].tName);
+      print_int(system.threads[0].sp - system.threads[0].base + system.threads[0].sSize);
      
 
       set_cursor(8, 0);
       print_string("Total Stack Size:");
-      print_string(system.threads[0].sSize);
+      print_int(system.threads[0].sSize);
       
 
       set_cursor(9, 0);
       print_string("Current top of Stack:");
-      //print_string(system.threads[0].tName);
+      print_int(system.threads[0].sp);
 
       set_cursor(10, 0);
       print_string("Stack base:");
@@ -98,7 +98,7 @@ void function_stats(){
 
       set_cursor(11, 0);
       print_string("Stack end:");
-      //print_int(system.threads[0].base);
+      print_int(system.threads[0].base + system.threads[0].sSize);
 
       set_cursor(12, 0);
       print_string("SP: ");
@@ -116,19 +116,19 @@ void function_stats(){
 
       set_cursor(16, 0);
       print_string("Thread PC:");
-      //print_string(system.threads[1].tName);
+      print_int(&function_blink);
 
       set_cursor(17, 0);
       print_string("Stack Usage:");
-      //print_string(system.threads[1].tName);
+      print_int(system.threads[1].sp - system.threads[1].base + system.threads[1].sSize);
 
       set_cursor(18, 0);
       print_string("Total Stack Size:");
-      print_string(system.threads[1].sSize);
+      print_int(system.threads[1].sSize);
 
       set_cursor(19, 0);
       print_string("Current top of Stack:");
-      //print_string(system.threads[1].tName);
+      print_int(system.threads[1].sp);
 
       set_cursor(20, 0);
       print_string("Stack base:");
@@ -136,7 +136,7 @@ void function_stats(){
 
       set_cursor(21, 0);
       print_string("Stack end:");
-      //print_int(system.threads[1].base);
+      print_int(system.threads[1].base + system.threads[1].sSize);
 
       set_cursor(22, 0);
       print_string("SP: ");
