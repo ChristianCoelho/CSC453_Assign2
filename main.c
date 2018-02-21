@@ -52,7 +52,8 @@ int main(int argc, char *argv[]) {
 
    sei();
    while(1) {
-      print_string("I'm main. ");
+      set_cursor(24, 0);
+      print_string("I'm main.\n");
    }
    
 
@@ -178,18 +179,21 @@ void function_stats(){
 void display_bounded_buffer() {
    int i  = 0;
    
-   print_string("I'm bounded buffer. ");
+   // print_string("I'm bounded buffer. ");
    for( i = 0; i < buffer; i++)
    {
+      set_cursor(26, 0);
       print_string("Item: ");
       print_int32(i);
       print_string("\n");
    }
       
+   set_cursor(27, 0);
    print_string("Production: ");
    print_int32(pRate);
    print_string("\n");
 
+   set_cursor(28, 0);
    print_string("Consumer: ");
    print_int32(cRate);
    print_string("\n");
@@ -199,7 +203,7 @@ void display_bounded_buffer() {
 void producer() {
    
    uint8_t producedItem;
-   print_string("I'm producer. ");
+   // print_string("I'm producer. ");
 
    while(1) {
       thread_sleep(pRate);
@@ -219,7 +223,7 @@ void producer() {
 }
 
 void consumer() {
-   print_string("I'm consumer. ");
+   // print_string("I'm consumer. ");
 
    while(1) {
       sem_wait(full);
