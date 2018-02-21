@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
    sei();
    while(1) {
       set_cursor(24, 0);
-      print_string("I'm main.\n");
+      print_string("I'm main.");
    }
    
 
@@ -185,18 +185,15 @@ void display_bounded_buffer() {
       set_cursor(26, 0);
       print_string("Item: ");
       print_int32(i);
-      print_string("\n");
    }
       
    set_cursor(27, 0);
    print_string("Production: ");
    print_int32(pRate);
-   print_string("\n");
 
    set_cursor(28, 0);
    print_string("Consumer: ");
    print_int32(cRate);
-   print_string("\n");
 
 }
 
