@@ -32,10 +32,10 @@ int main(int argc, char *argv[]) {
    uint32_t test = 20;
 
    os_init();
-   print_string("We are in main");
+   // print_string("We are in main");
    create_thread("stats", &function_stats, NULL, 50); //0
    create_thread("blink", &function_blink, NULL, 50); // 1
-   create_thread("main", &main, NULL, 50); // 2
+   /* create_thread("main", &main, NULL, 50); // 2
    create_thread("display_bounded_buffer", &display_bounded_buffer, NULL, 50); // 3
    create_thread("producer", &producer, NULL, 50); // 4
    create_thread("consumer", &consumer, NULL, 50); // 5
@@ -48,6 +48,8 @@ int main(int argc, char *argv[]) {
    sem_init(empty, 10);
    sem_init(full, 0);
    sem_init(m, 1);
+   */
+
    os_start();
 
    sei();
@@ -67,12 +69,14 @@ void function_blink() {
     while(1) {
       test = test + 1;
     for(i = 0; i < 10; i++) {
-        _delay_ms(10);
+        // _delay_ms(10);
+        thread_sleep(5);
     }   
     led_on();
 
     for(i = 0; i < 10; i++) {
-        _delay_ms(10);
+       // _delay_ms(10);
+       thread_sleep(5);
     }
 
     led_off();
@@ -86,6 +90,7 @@ void function_stats(){
       if((system.intCount % 100) == 0)
         sysTime++;
 
+      // Thread 0
       set_cursor_home();
       print_string("System Time: ");
       print_int(sysTime);
@@ -135,7 +140,7 @@ void function_stats(){
       print_string("SP: ");
       print_int(system.threads[0].sp);
 
-      //Theard 1
+      // Thread 1
       
       set_cursor(14, 0);
       print_string("Thread ID:");

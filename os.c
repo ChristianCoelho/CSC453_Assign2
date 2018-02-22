@@ -3,7 +3,7 @@
 #include "globals.h"
 #include "os.h"
 #include <stdlib.h>
-#define MAXTHREADS 6
+#define MAXTHREADS 2
 
 system_t system;
 uint8_t volatile threadNum = 0;
@@ -38,12 +38,11 @@ ISR(TIMER0_COMPA_vect) {
    if(threadNum == MAXTHREADS) //Think about this make sure it isn't always running.
       threadNum = 0;
 
-
    oldThreadVal = threadNum;
 
+   sleep_refresh();
    newThreadVal = get_next_thread();
 
-   sleep_refresh();
   
    /*
    print_string("OT: ");
@@ -57,8 +56,6 @@ ISR(TIMER0_COMPA_vect) {
 
    context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
    
-   
-
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
    //and r0 before exiting the ISR
 }
@@ -228,8 +225,8 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
 
    (system.totalThreads)++;
    threadNum++;
-   print_string("Thread created!");
-   print_hex(threadNum);
+   // print_string("Thread created!");
+   // print_hex(threadNum);
 
 
 }
@@ -247,18 +244,18 @@ uint8_t get_next_thread() {
    int ogThreadNum = threadNum;
    while(1){
       i++;
-      if( i == 6)
+      if( i == MAXTHREADS)
       {
         i = 0;
       }
       
-      if(system.threads[i].threadState = THREAD_READY)
+      if(system.threads[i].threadState == THREAD_READY)
       {
          threadNum = i;
          return threadNum;
       }
 
-      if( i == ogThreadNum)
+      if(i == ogThreadNum)
          return threadNum;
 
    }
@@ -272,12 +269,17 @@ void sleep_refresh() {
          if (system.threads[i].sleepCycles == 0)
             system.threads[i].threadState = THREAD_READY;
          else
-            system.threads[newThreadVal].sleepCycles--;
+            system.threads[i].sleepCycles--;
    }
 }
    
 
 void thread_sleep(uint16_t ticks) {
+   set_cursor(29, 0);
+   print_string("We put thread ");
+   print_int(threadNum);
+   print_string(" to sleep");
+
    if (ticks == 1) {
       oldThreadVal = threadNum;
       newThreadVal = get_next_thread();
@@ -304,9 +306,7 @@ void mutex_lock(mutex_t *m) {
    if (m->available){
 
       // next is where head will point after.
-      next = m->head + 1;
-      if (next >= m->waitlistMax)
-         next = 0;
+      next = m->head + 1; if (next >= m->waitlistMax) next = 0;
 
       if (next == m->tail) // check if circular buffer is full
          print_string("Buffer is full");
@@ -361,26 +361,23 @@ void sem_wait(semaphore_t *s) {
    if(s->value < 0)
    {
       // next is where head will point after.
-    next = s->head + 1;
-    if (next >= s->waitlistMax)
-        next = 0;
+      next = s->head + 1;
+      if (next >= s->waitlistMax)
+         next = 0;
 
-    if (next == s->tail) // check if circular buffer is full
-       print_string("Buffer is full");
+      if (next == s->tail) // check if circular buffer is full
+         print_string("Buffer is full");
 
-    s->waitList[s->head] = threadNum;
+      s->waitList[s->head] = threadNum;
 
-    system.threads[threadNum].threadState = THREAD_WAITING;
+      system.threads[threadNum].threadState = THREAD_WAITING;
      
-    s->head = next;            // head to next offset.
+      s->head = next;            // head to next offset.
 
-    // blocking area goes to new thread because of wait
+      // blocking area goes to new thread because of wait
     
-    yield();
-
-    
+      yield();
    }
-
    
 }
 
@@ -408,7 +405,7 @@ void sem_signal(semaphore_t *s) {
         next = 0;
       }
 
-      s->tail = next;             // tail to next.
+      s->tail = next;      // tail to next.
       sei();
    }
 }
@@ -426,7 +423,6 @@ void sem_signal_swap(semaphore_t *s) {
    if (s->value <= 0) {
       // Take the top one off and run it
       
-
       system.threads[runThread].threadState = THREAD_RUNNING;
       system.threads[threadNum].threadState = THREAD_READY;
 
