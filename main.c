@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
    create_thread("main", &main, NULL, 50); // 2
    create_thread("display_bounded_buffer", &display_bounded_buffer, NULL, 50); // 3
    create_thread("producer", &producer, NULL, 50); // 4
-   //create_thread("consumer", &consumer, NULL, 50); // 5
+   create_thread("consumer", &consumer, NULL, 50); // 5
 
    /*mutex_init(prMutex);
    mutex_init(crMutex);
@@ -94,7 +94,7 @@ void function_blink() {
 }
 void function_stats(){
    uint16_t sysTime = 0;
-   //clear_screen();
+   clear_screen();
    while(1)
    {
       if((system.intCount % 100) == 0)
@@ -193,24 +193,25 @@ void function_stats(){
 
 void display_bounded_buffer() {
    int i  = 0;
-   
+   int row = 30;
    // print_string("I'm bounded buffer. ");
    set_color(RED);
-   set_cursor(30, 80);
+   set_cursor(25, 80);
 
    print_string("Production: ");
    print_int(pRate);
-   print_string("\n");
-
+   
+   set_cursor(27, 80);
    print_string("Consumer: ");
    print_int(cRate);
-   print_string("\n");
+
 
    for( i = 0; i < buffer; i++)
    {
+      set_cursor((row+i),80);
       print_string("Item: ");
       print_int(i);
-      print_string("\n");
+      
    }
    
    set_color(BLACK);
@@ -228,8 +229,7 @@ void producer() {
 
       sem_wait(&empty);
       sem_wait(&m);
-      set_cursor(10,70);
-      print_string("we are out of sem_waits");
+    
       //Add item to buffer
       buffer += producedItem;
       if(buffer > 10)
@@ -237,14 +237,13 @@ void producer() {
 
       sem_signal(&m);
       sem_signal(&full);
-      set_cursor(12,70);
-      print_string("we are done with producer");
+  
    }
 }
 
 void consumer() {
    // print_string("I'm consumer. ");
-
+   
    while(1) {
       sem_wait(&full);
       sem_wait(&m);
@@ -258,6 +257,7 @@ void consumer() {
       
       sem_signal(&m);
       sem_signal(&empty);
+       
 
       // Consume item
    }

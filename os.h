@@ -9,7 +9,7 @@
 #define THREAD_WAITING 3
 #define TRUE 1
 #define FALSE 0
-#define MAXTHREADS 5
+#define MAXTHREADS 6
 #endif
 
 //This structure defines the register order pushed to the stack on a

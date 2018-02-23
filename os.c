@@ -240,6 +240,7 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
 void os_start() {
    start_system_timer();
    sei();
+   clear_screen();
    context_switch(&(system.threads[0].sp), &(system.threads[2].sp));
 }
 
@@ -365,7 +366,7 @@ void sem_init(semaphore_t *s, int8_t value) {
    s->value = value;
    s->waitlistMax = MAXTHREADS;
    for(i = 0; i < MAXTHREADS; i++)
-      s->waitList[i] = 78;
+      s->waitList[i] = 200;
 }
 
 void sem_wait(semaphore_t *s) {
@@ -374,11 +375,7 @@ void sem_wait(semaphore_t *s) {
    int i;
    int row = 20;
    (s->value)--;
-   for(i < 0; i < MAXTHREADS; i++)
-   {
-      set_cursor((row + i),40);
-      print_int(s->waitList[i]);
-   }
+ 
    
    if(s->value < 0)
    {
@@ -421,7 +418,6 @@ void sem_signal(semaphore_t *s) {
       //Waitlist update
       if (s->head == s->tail){ 
            set_cursor(65, 50);// check if buffer is empty
-         print_string("empty");
       } 
 
       next = s->tail + 1;
