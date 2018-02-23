@@ -45,8 +45,8 @@ int main(int argc, char *argv[]) {
    create_thread("stats", &function_stats, NULL, 50); //0
    create_thread("blink", &function_blink, NULL, 50); // 1
    create_thread("main", &main, NULL, 50); // 2
-   create_thread("display_bounded_buffer", &display_bounded_buffer, NULL, 50); // 3
    create_thread("producer", &producer, NULL, 50); // 4
+   create_thread("display_bounded_buffer", &display_bounded_buffer, NULL, 50); // 3
    create_thread("consumer", &consumer, NULL, 50); // 5
 
    /*mutex_init(prMutex);
@@ -97,6 +97,8 @@ void function_stats(){
    clear_screen();
    while(1)
    {
+      cli();
+      set_color(BLACK);
       if((system.intCount % 100) == 0)
         sysTime++;
 
@@ -187,11 +189,13 @@ void function_stats(){
       set_cursor(22, 0);
       print_string("SP: ");
       print_int(system.threads[1].sp);
+      sei();
 
    }
 }
 
 void display_bounded_buffer() {
+   cli();
    int i  = 0;
    int row = 30;
    // print_string("I'm bounded buffer. ");
@@ -205,6 +209,16 @@ void display_bounded_buffer() {
    print_string("Consumer: ");
    print_int(cRate);
 
+   set_cursor(29, 80);
+   print_string("Hello world: ");
+   print_int(buffer);
+
+/*
+   // TODO THIS IS WHAT WE CHANGED
+   if (buffer > 10) {
+      buffer = 10;
+   }
+*/
 
    for( i = 0; i < buffer; i++)
    {
@@ -215,6 +229,7 @@ void display_bounded_buffer() {
    }
    
    set_color(BLACK);
+   sei();
 
 }
 
@@ -224,6 +239,7 @@ void producer() {
    // print_string("I'm producer. ");
 
    while(1) {
+      cli();
       thread_sleep(pRate);
       producedItem = 1;
 
@@ -232,11 +248,13 @@ void producer() {
     
       //Add item to buffer
       buffer += producedItem;
-      if(buffer > 10)
+      if(buffer > 10) {
          buffer = 10;
+      }
 
       sem_signal(&m);
       sem_signal(&full);
+      sei();
   
    }
 }
@@ -245,20 +263,22 @@ void consumer() {
    // print_string("I'm consumer. ");
    
    while(1) {
+      cli();
       sem_wait(&full);
       sem_wait(&m);
 
       thread_sleep(cRate);
    
       // Remove item from buffer
-      buffer--;
-      if(buffer < 0)
+      if(buffer <= 0)
          buffer = 0;
-      
+      else
+         buffer--;
       sem_signal(&m);
       sem_signal(&empty);
        
 
       // Consume item
+      sei();
    }
 }
