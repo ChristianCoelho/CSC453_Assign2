@@ -17,7 +17,7 @@
 #define BLUE 34
 #define MAGENTA 35
 #define CYAN 36
-#define WHITE 37
+#define WHITE 38
 
 uint16_t pRate = 100;
 uint16_t cRate = 100;  //default rates
@@ -32,6 +32,7 @@ mutex_t prMutex;
 mutex_t crMutex;
 mutex_t proMutex;
 mutex_t conMutex;
+mutex_t buffMutex;
 semaphore_t empty;
 semaphore_t full;
 semaphore_t m;
@@ -45,14 +46,14 @@ int main(int argc, char *argv[]) {
    create_thread("stats", &function_stats, NULL, 50); //0
    create_thread("blink", &function_blink, NULL, 50); // 1
    create_thread("main", &main, NULL, 50); // 2
-   create_thread("producer", &producer, NULL, 50); // 4
-   create_thread("display_bounded_buffer", &display_bounded_buffer, NULL, 50); // 3
+   create_thread("producer", &producer, NULL, 50); // 3
+   create_thread("display_bounded_buffer", &display_bounded_buffer, NULL, 50); // 4
    create_thread("consumer", &consumer, NULL, 50); // 5
 
    /*mutex_init(prMutex);
    mutex_init(crMutex);
-   mutex_init(proMutex);
-   mutex_init(conMutex);*/
+   mutex_init(proMutex);*/
+   mutex_init(buffMutex);
 
    sem_init(&empty, 10);
    sem_init(&full, 0);
@@ -76,20 +77,22 @@ int main(int argc, char *argv[]) {
 void function_blink() {
     int i, test = 0;
     while(1) {
-      test = test + 1;
+       mutex_lock(&buffMutex);
+       test = test + 1;
     /*for(i = 0; i < 10; i++) {
          _delay_ms(10);
        
     }*/ 
-    thread_sleep(5);
-    led_on();
+       thread_sleep(5);
+       led_on();
 
     /*for(i = 0; i < 10; i++) {
        // _delay_ms(10);
        
     }*/
-    thread_sleep(5);
-    led_off();
+       thread_sleep(5);
+       led_off();
+       mutex_unlock(&buffMutex);
     }
 }
 void function_stats(){
@@ -97,7 +100,6 @@ void function_stats(){
    clear_screen();
    while(1)
    {
-      cli();
       set_color(BLACK);
       if((system.intCount % 100) == 0)
         sysTime++;
@@ -189,13 +191,12 @@ void function_stats(){
       set_cursor(22, 0);
       print_string("SP: ");
       print_int(system.threads[1].sp);
-      sei();
 
    }
 }
 
 void display_bounded_buffer() {
-   cli();
+   mutex_lock(&buffMutex);
    int i  = 0;
    int row = 30;
    // print_string("I'm bounded buffer. ");
@@ -229,7 +230,7 @@ void display_bounded_buffer() {
    }
    
    set_color(BLACK);
-   sei();
+   mutex_unlock(&buffMutex);
 
 }
 
@@ -239,7 +240,7 @@ void producer() {
    // print_string("I'm producer. ");
 
    while(1) {
-      cli();
+      mutex_lock(&buffMutex);
       thread_sleep(pRate);
       producedItem = 1;
 
@@ -254,7 +255,7 @@ void producer() {
 
       sem_signal(&m);
       sem_signal(&full);
-      sei();
+      mutex_unlock(&buffMutex);
   
    }
 }
@@ -263,7 +264,7 @@ void consumer() {
    // print_string("I'm consumer. ");
    
    while(1) {
-      cli();
+      mutex_lock(&buffMutex);
       sem_wait(&full);
       sem_wait(&m);
 
@@ -279,6 +280,6 @@ void consumer() {
        
 
       // Consume item
-      sei();
+      mutex_unlock(&buffMutex);
    }
 }
