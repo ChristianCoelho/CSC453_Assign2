@@ -10,6 +10,15 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+#define BLACK 30
+#define RED 31
+#define GREEN 32
+#define YELLOW 33
+#define BLUE 34
+#define MAGENTA 35
+#define CYAN 36
+#define WHITE 37
+
 uint16_t pRate = 100;
 uint16_t cRate = 100;  //default rates
 uint8_t buffer = 0;
@@ -35,31 +44,31 @@ int main(int argc, char *argv[]) {
    // print_string("We are in main");
    create_thread("stats", &function_stats, NULL, 50); //0
    create_thread("blink", &function_blink, NULL, 50); // 1
-   /* create_thread("main", &main, NULL, 50); // 2
+   create_thread("main", &main, NULL, 50); // 2
    create_thread("display_bounded_buffer", &display_bounded_buffer, NULL, 50); // 3
    create_thread("producer", &producer, NULL, 50); // 4
-   create_thread("consumer", &consumer, NULL, 50); // 5
+   //create_thread("consumer", &consumer, NULL, 50); // 5
 
-   mutex_init(prMutex);
+   /*mutex_init(prMutex);
    mutex_init(crMutex);
    mutex_init(proMutex);
-   mutex_init(conMutex);
+   mutex_init(conMutex);*/
 
-   sem_init(empty, 10);
-   sem_init(full, 0);
-   sem_init(m, 1);
-   */
+   sem_init(&empty, 10);
+   sem_init(&full, 0);
+   sem_init(&m, 1);
+   
 
    os_start();
 
    sei();
    while(1) {
-      set_cursor(24, 0);
-      print_string("I'm main.");
+     /* set_cursor(24, 0);
+      print_string("I'm main.");*/
    }
    
 
-   // context_switch(&(system.threads[0].sp), &(system.threads[0].sp));
+ 
    
    return 0;
 }
@@ -68,23 +77,24 @@ void function_blink() {
     int i, test = 0;
     while(1) {
       test = test + 1;
-    for(i = 0; i < 10; i++) {
-        // _delay_ms(10);
-        thread_sleep(5);
-    }   
+    /*for(i = 0; i < 10; i++) {
+         _delay_ms(10);
+       
+    }*/ 
+    thread_sleep(5);
     led_on();
 
-    for(i = 0; i < 10; i++) {
+    /*for(i = 0; i < 10; i++) {
        // _delay_ms(10);
-       thread_sleep(5);
-    }
-
+       
+    }*/
+    thread_sleep(5);
     led_off();
     }
 }
 void function_stats(){
    uint16_t sysTime = 0;
-   clear_screen();
+   //clear_screen();
    while(1)
    {
       if((system.intCount % 100) == 0)
@@ -185,20 +195,25 @@ void display_bounded_buffer() {
    int i  = 0;
    
    // print_string("I'm bounded buffer. ");
+   set_color(RED);
+   set_cursor(30, 80);
+
+   print_string("Production: ");
+   print_int(pRate);
+   print_string("\n");
+
+   print_string("Consumer: ");
+   print_int(cRate);
+   print_string("\n");
+
    for( i = 0; i < buffer; i++)
    {
-      set_cursor(26, 0);
       print_string("Item: ");
-      print_int32(i);
+      print_int(i);
+      print_string("\n");
    }
-      
-   set_cursor(27, 0);
-   print_string("Production: ");
-   print_int32(pRate);
-
-   set_cursor(28, 0);
-   print_string("Consumer: ");
-   print_int32(cRate);
+   
+   set_color(BLACK);
 
 }
 
@@ -211,16 +226,19 @@ void producer() {
       thread_sleep(pRate);
       producedItem = 1;
 
-      sem_wait(empty);
-      sem_wait(m);
-
+      sem_wait(&empty);
+      sem_wait(&m);
+      set_cursor(10,70);
+      print_string("we are out of sem_waits");
       //Add item to buffer
       buffer += producedItem;
       if(buffer > 10)
          buffer = 10;
 
-      sem_signal(m);
-      sem_signal(full);
+      sem_signal(&m);
+      sem_signal(&full);
+      set_cursor(12,70);
+      print_string("we are done with producer");
    }
 }
 
@@ -228,8 +246,8 @@ void consumer() {
    // print_string("I'm consumer. ");
 
    while(1) {
-      sem_wait(full);
-      sem_wait(m);
+      sem_wait(&full);
+      sem_wait(&m);
 
       thread_sleep(cRate);
    
@@ -238,8 +256,8 @@ void consumer() {
       if(buffer < 0)
          buffer = 0;
       
-      sem_signal(m);
-      sem_signal(empty);
+      sem_signal(&m);
+      sem_signal(&empty);
 
       // Consume item
    }

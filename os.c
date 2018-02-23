@@ -3,7 +3,8 @@
 #include "globals.h"
 #include "os.h"
 #include <stdlib.h>
-#define MAXTHREADS 2
+
+
 
 system_t system;
 uint8_t volatile threadNum = 0;
@@ -42,6 +43,10 @@ ISR(TIMER0_COMPA_vect) {
 
    sleep_refresh();
    newThreadVal = get_next_thread();
+
+   set_cursor(0,70);
+   print_string("ThreadNum:");
+   print_int(threadNum);
 
   
    /*
@@ -222,7 +227,7 @@ void create_thread(char *name, uint16_t address, void *args, uint16_t stack_size
    
    (system.threads[threadNum]).id = threadNum;
    (system.threads[threadNum]).sSize = size;
-
+   (system.threads[threadNum]).threadState = THREAD_READY;
    (system.totalThreads)++;
    threadNum++;
    // print_string("Thread created!");
@@ -275,10 +280,10 @@ void sleep_refresh() {
    
 
 void thread_sleep(uint16_t ticks) {
-   set_cursor(29, 0);
+   /*set_cursor(40, 50);
    print_string("We put thread ");
    print_int(threadNum);
-   print_string(" to sleep");
+   print_string(" to sleep");*/
 
    if (ticks == 1) {
       oldThreadVal = threadNum;
@@ -296,7 +301,7 @@ void mutex_init(mutex_t *m) {
    m->available = TRUE;
    m->tail = 0;
    m->head = 0;
-   m->waitlistMax = 6;
+   m->waitlistMax = MAXTHREADS;
 }
 
 void mutex_lock(mutex_t *m) {
@@ -306,10 +311,16 @@ void mutex_lock(mutex_t *m) {
    if (m->available){
 
       // next is where head will point after.
-      next = m->head + 1; if (next >= m->waitlistMax) next = 0;
+      next = m->head + 1; 
 
-      if (next == m->tail) // check if circular buffer is full
-         print_string("Buffer is full");
+      if (next >= m->waitlistMax) 
+         next = 0;
+
+      if (next == m->tail){ // check if circular buffer is full
+        set_cursor(50, 50);
+        print_string("Buffer is full");
+
+      }
 
       m->waitList[m->head] = threadNum;
 
@@ -324,7 +335,7 @@ void mutex_lock(mutex_t *m) {
 
 void mutex_unlock(mutex_t *m) {
    cli();
-   uint8_t readyThread = m->waitList[(m->head)];
+   uint8_t readyThread = m->waitList[(m->tail)];
    uint8_t next;
 
    m->available = TRUE;
@@ -333,6 +344,7 @@ void mutex_unlock(mutex_t *m) {
 
       //Waitlist update
       if (m->head == m->tail){ // check if buffer is empty
+          set_cursor(55, 50);
          print_string("empty");
       } 
 
@@ -347,16 +359,26 @@ void mutex_unlock(mutex_t *m) {
 }
 
 void sem_init(semaphore_t *s, int8_t value) {
+   int i = 0;
    s->tail = 0;
    s->head = 0;
    s->value = value;
-   s->waitlistMax = 6;
+   s->waitlistMax = MAXTHREADS;
+   for(i = 0; i < MAXTHREADS; i++)
+      s->waitList[i] = 78;
 }
 
 void sem_wait(semaphore_t *s) {
    cli();
    uint8_t next;
+   int i;
+   int row = 20;
    (s->value)--;
+   for(i < 0; i < MAXTHREADS; i++)
+   {
+      set_cursor((row + i),40);
+      print_int(s->waitList[i]);
+   }
    
    if(s->value < 0)
    {
@@ -365,8 +387,10 @@ void sem_wait(semaphore_t *s) {
       if (next >= s->waitlistMax)
          next = 0;
 
-      if (next == s->tail) // check if circular buffer is full
+      if (next == s->tail){
+         set_cursor(60, 50); // check if circular buffer is full
          print_string("Buffer is full");
+      }
 
       s->waitList[s->head] = threadNum;
 
@@ -376,7 +400,7 @@ void sem_wait(semaphore_t *s) {
 
       // blocking area goes to new thread because of wait
     
-      yield();
+      //yield();
    }
    
 }
@@ -384,7 +408,7 @@ void sem_wait(semaphore_t *s) {
 void sem_signal(semaphore_t *s) {
    cli();
    int i;
-   uint8_t readyThread = s->waitList[(s->head)];
+   uint8_t readyThread = s->waitList[(s->tail)];
    uint8_t next;
    (s->value)++;
 
@@ -395,7 +419,8 @@ void sem_signal(semaphore_t *s) {
       system.threads[readyThread].threadState = THREAD_READY;
 
       //Waitlist update
-      if (s->head == s->tail){ // check if buffer is empty
+      if (s->head == s->tail){ 
+           set_cursor(65, 50);// check if buffer is empty
          print_string("empty");
       } 
 
@@ -406,8 +431,8 @@ void sem_signal(semaphore_t *s) {
       }
 
       s->tail = next;      // tail to next.
-      sei();
    }
+   sei();
 }
    
    
@@ -416,7 +441,7 @@ void sem_signal(semaphore_t *s) {
 void sem_signal_swap(semaphore_t *s) {
    cli();
    int i;
-   uint8_t runThread = s->waitList[(s->head)];
+   uint8_t runThread = s->waitList[(s->tail)];
    uint8_t next;
    (s->value)++;
 
@@ -432,6 +457,7 @@ void sem_signal_swap(semaphore_t *s) {
 
       if (s->head == s->tail){
           // check if buffer is empty
+          set_cursor(70, 0);
          print_string("something weird is happening");
       }  //shouldn't happen
 
@@ -443,11 +469,11 @@ void sem_signal_swap(semaphore_t *s) {
       }
 
       s->tail = next;             // tail to next.
-      sei();
 
       context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
 
    }
+   sei();
   
 }
 

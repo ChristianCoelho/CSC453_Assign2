@@ -9,7 +9,7 @@
 #define THREAD_WAITING 3
 #define TRUE 1
 #define FALSE 0
-
+#define MAXTHREADS 5
 #endif
 
 //This structure defines the register order pushed to the stack on a
@@ -98,7 +98,7 @@ typedef struct {
 }system_t;
 
 typedef struct {
-   uint8_t waitList[6];
+   uint8_t waitList[MAXTHREADS];
    uint8_t tail;
    uint8_t head;
    uint8_t value;
@@ -108,7 +108,7 @@ typedef struct {
 
 typedef struct {
    uint8_t available;
-   uint8_t waitList[6];
+   uint8_t waitList[MAXTHREADS];
    uint8_t tail;
    uint8_t head;
    uint8_t waitlistMax;
