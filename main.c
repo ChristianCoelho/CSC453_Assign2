@@ -97,7 +97,7 @@ void function_blink() {
 }
 void function_stats(){
    uint16_t sysTime = 0;
-   clear_screen();
+   // clear_screen();
    while(1)
    {
       set_color(BLACK);
@@ -209,10 +209,6 @@ void display_bounded_buffer() {
    set_cursor(27, 80);
    print_string("Consumer: ");
    print_int(cRate);
-
-   set_cursor(29, 80);
-   print_string("Hello world: ");
-   print_int(buffer);
 
 /*
    // TODO THIS IS WHAT WE CHANGED

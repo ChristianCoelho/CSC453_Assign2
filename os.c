@@ -43,11 +43,6 @@ ISR(TIMER0_COMPA_vect) {
 
    sleep_refresh();
    newThreadVal = get_next_thread();
-
-   set_cursor(0,70);
-   print_string("ThreadNum:");
-   print_int(threadNum);
-
   
    /*
    print_string("OT: ");
@@ -322,10 +317,11 @@ void mutex_lock(mutex_t *m) {
       if (next >= m->waitlistMax)
          next = 0;
 
+      /* 
       if (next == m->tail){
          set_cursor(60, 50); // check if circular buffer is full
          print_string("Buffer is full");
-      }
+      } */
       
       (m->curSize)++;
       m->waitList[m->head] = threadNum;
@@ -346,10 +342,11 @@ void mutex_unlock(mutex_t *m) {
       system.threads[readyThread].threadState = THREAD_READY;
 
       //Waitlist update
+      /*
       if (m->head == m->tail){ // check if buffer is empty
           set_cursor(55, 50);
          print_string("empty");
-      } 
+      }*/ 
 
       next = m->tail + 1;
 
@@ -390,10 +387,12 @@ void sem_wait(semaphore_t *s) {
       if (next >= s->waitlistMax)
          next = 0;
 
+      /*
       if (next == s->tail){
          set_cursor(60, 50); // check if circular buffer is full
          print_string("Buffer is full");
       }
+      */
 
       s->waitList[s->head] = threadNum;
 
