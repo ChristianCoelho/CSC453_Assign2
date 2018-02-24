@@ -204,11 +204,13 @@ void display_bounded_buffer() {
    set_cursor(25, 80);
 
    print_string("Production: ");
-   print_int(pRate);
+   print_int(pRate * 10);
+   print_string(" ms");
    
    set_cursor(27, 80);
    print_string("Consumer: ");
-   print_int(cRate);
+   print_int(cRate * 10);
+   print_string(" ms");
 
 /*
    // TODO THIS IS WHAT WE CHANGED
