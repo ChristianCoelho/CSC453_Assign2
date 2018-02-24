@@ -100,7 +100,28 @@ void function_stats(){
    // clear_screen();
    while(1)
    {
-      set_color(BLACK);
+
+      // THIS IS WHAT THE KEYSTROKES LOOK LIKE
+      /*
+      char keystroke = read_byte();
+
+      switch(keystroke) {
+         case 'a':
+            pRate += 100;
+            break;
+         case 'z':
+            pRate -= 100;
+            break;
+         case 'k':
+            cRate += 100;
+            break;
+         case 'm':
+            cRate -= 100;
+            break;
+      }
+      */
+
+      set_color(WHITE);
       if((system.intCount % 100) == 0)
         sysTime++;
 
@@ -229,7 +250,6 @@ void display_bounded_buffer() {
    
    set_color(BLACK);
    mutex_unlock(&buffMutex);
-
 }
 
 void producer() {

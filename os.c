@@ -34,6 +34,7 @@ ISR(TIMER0_COMPA_vect) {
    //Call context switch here to switch to that next thread
  
    //print_string("HELLO INTERRUPT WORLD");
+   set_color(WHITE);
    (system.intCount)++;
 
    if(threadNum == MAXTHREADS) //Think about this make sure it isn't always running.
