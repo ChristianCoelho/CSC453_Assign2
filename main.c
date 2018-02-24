@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 void function_blink() {
     int i, test = 0;
     while(1) {
-       mutex_lock(&buffMutex);
+       //mutex_lock(&buffMutex);
        test = test + 1;
     /*for(i = 0; i < 10; i++) {
          _delay_ms(10);
@@ -92,7 +92,7 @@ void function_blink() {
     }*/
        thread_sleep(5);
        led_off();
-       mutex_unlock(&buffMutex);
+       //mutex_unlock(&buffMutex);
     }
 }
 void function_stats(){

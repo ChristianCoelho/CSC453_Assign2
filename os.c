@@ -58,7 +58,8 @@ ISR(TIMER0_COMPA_vect) {
    print_int32(newThreadVal);
    print_string(" ");
    */
-
+   system.threads[newThreadVal].threadState = THREAD_RUNNING;
+   system.threads[oldThreadVal].threadState = THREAD_READY;
    context_switch(&(system.threads[newThreadVal].sp), &(system.threads[oldThreadVal].sp));
    
    //At the end of this ISR, GCC generated code will pop r18-r31, r1, 
@@ -302,46 +303,47 @@ void mutex_init(mutex_t *m) {
    m->available = TRUE;
    m->tail = 0;
    m->head = 0;
+   m->curSize = 0;
    m->waitlistMax = MAXTHREADS;
 }
 
 void mutex_lock(mutex_t *m) {
-   cli();
+
    uint8_t next;
 
    if (m->available){
 
-      // next is where head will point after.
-      next = m->head + 1; 
+     m->available = FALSE;
 
-      if (next >= m->waitlistMax) 
+   }
+   else
+   {
+      next = m->head + 1;
+      if (next >= m->waitlistMax)
          next = 0;
 
-      if (next == m->tail){ // check if circular buffer is full
-        set_cursor(50, 50);
-        print_string("Buffer is full");
-
+      if (next == m->tail){
+         set_cursor(60, 50); // check if circular buffer is full
+         print_string("Buffer is full");
       }
-
+      
+      (m->curSize)++;
       m->waitList[m->head] = threadNum;
 
       system.threads[threadNum].threadState = THREAD_WAITING;
      
-      m->head = next; 
-
+      m->head = next;
    }
-   m->available = FALSE;
-   sei();
 }
 
 void mutex_unlock(mutex_t *m) {
-   cli();
    uint8_t readyThread = m->waitList[(m->tail)];
    uint8_t next;
 
    m->available = TRUE;
 
-   system.threads[readyThread].threadState = THREAD_READY;
+   if(m->curSize > 0){
+      system.threads[readyThread].threadState = THREAD_READY;
 
       //Waitlist update
       if (m->head == m->tail){ // check if buffer is empty
@@ -354,9 +356,13 @@ void mutex_unlock(mutex_t *m) {
       if(next >= m->waitlistMax){
         next = 0;
       }
-
+      (m->curSize)--;
       m->tail = next;
-      sei(); 
+      m->available = FALSE;
+   }
+   
+
+   
 }
 
 void sem_init(semaphore_t *s, int8_t value) {
